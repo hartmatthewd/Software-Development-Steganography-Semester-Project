@@ -1,0 +1,26 @@
+(define (run-lsb-tests)
+    (display "Running lsb encoding tests") (newline)
+    (encode-lsb-tests)
+    (encode-msb-tests))
+
+(define (encode-lsb-tests)
+   (assert (= (encode-lsb 57 0) 56))
+   (assert (= (encode-lsb 4 0) 4))
+   (assert (= (encode-lsb -1232 0) -1232))
+   (assert (= (encode-lsb -2343 0) -2344))
+
+   (assert (= (encode-lsb 57 1) 57))
+   (assert (= (encode-lsb 4 1) 5))
+   (assert (= (encode-lsb -1232 1) -1231))
+   (assert (= (encode-lsb -2343 1) -2343)))
+
+(define (encode-msb-tests)
+   (assert (= (encode-msb 5 0) 5))
+   (assert (= (encode-msb 12 0) 12))
+   (assert (= (encode-msb -12 0) 536870900))
+   (assert (= (encode-msb -13 0) 536870899))
+
+   (assert (= (encode-msb 5 1) -536870907))
+   (assert (= (encode-msb 12 1) -536870900))
+   (assert (= (encode-msb -12 1) -12))
+   (assert (= (encode-msb -13 1) -13)))
