@@ -17,7 +17,7 @@
    (assert (= (encode-lsb -2343 1) -2343)))
 
 (define (encode-lsb-in-bytevector-tests)
-   (let ((bv (make-bytevector 4)))
+   (let ((bv (make-bytevector 4 0)))
       (bytevector-s8-set! bv 0 5)
       (bytevector-s8-set! bv 1 5)
       (bytevector-s8-set! bv 2 8)

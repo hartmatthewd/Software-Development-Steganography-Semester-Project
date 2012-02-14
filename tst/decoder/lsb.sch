@@ -10,7 +10,7 @@
   (assert (= (get-lsb 8) 0)))
 
 (define (get-lsb-from-bytevector-test)
-  (let ((bv (make-bytevector 2)))
+  (let ((bv (make-bytevector 2 0)))
      (bytevector-s8-set! bv 1 1)
      (assert (= (get-lsb-from-bytevector bv 0) 0))
      (assert (= (get-lsb-from-bytevector bv 1) 1))))
