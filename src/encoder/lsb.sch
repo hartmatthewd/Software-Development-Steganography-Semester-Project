@@ -1,7 +1,5 @@
 ; WARNING - current version has no protection from the payload being too large to fit in the carrier.
 
-(load "src/shared/util.sch")
-
 ; Returns a byte equal to the given byte only with the least significant bit set to the given bit
 (define (encode-bit-into-byte-lsb byte bit)
    (bitwise-ior bit (bitwise-and byte (bitwise-not 1))))

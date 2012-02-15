@@ -2,22 +2,4 @@
 
 (define (run-util-tests)
    (display "tst/shared/util.sch") (newline)
-   (get-bits-from-byte-test)
-   (get-byte-from-bit-vector-test))
-
-(define (get-bits-from-byte-test)
-   (let ((v8 (get-bits-from-byte 8)) (v13 (get-bits-from-byte 13)))
-     (assert (= (vector-ref v8 4) 1))
-     (assert (= (vector-ref v13 4) 1))
-     (assert (= (vector-ref v13 5) 1))
-     (assert (= (vector-ref v13 7) 1))))
-
-(define (get-byte-from-bit-vector-test)
-   (let ((v (make-vector 8 0)))
-     (assert (= (get-byte-from-bit-vector v) 0))
-     (vector-set! v 7 1)
-     (assert (= (get-byte-from-bit-vector v) 1))
-     (vector-set! v 5 1)
-     (assert (= (get-byte-from-bit-vector v) 5))
-     (vector-set! v 4 1)
-     (assert (= (get-byte-from-bit-vector v) 13))))
+   )
