@@ -28,9 +28,15 @@
 ; Given a carrier and a starting index, write the given payload into the carrier via lsb encoding 
 ; writing 1 bit of the payload every 2 bytes of the carrier
 (define (encode-payload-via-lsb carrier cindex payload)
-   (letrec
-     ((encode-byte (lambda (cindex pindex)
-       (if (< pindex (bytevector-length payload))
-           (encode-byte (encode-byte-into-carrier-lsb carrier cindex (bytevector-ref payload pindex)) (+ pindex 1))
-           cindex))))
-     (encode-byte cindex 0)))
+  (ensure-able-to-encode-lsb carrier cindex payload)
+  (letrec
+    ((encode-byte (lambda (cindex pindex)
+      (if (< pindex (bytevector-length payload))
+          (encode-byte (encode-byte-into-carrier-lsb carrier cindex (bytevector-ref payload pindex)) (+ pindex 1))
+          cindex))))
+    (encode-byte cindex 0)))
+
+; Ensure that the payload is small enough to fit into the carrier
+(define (ensure-able-to-encode-lsb carrier cindex payload)
+  (if (> (* (- (bytevector-length payload) 1) 16) (- (bytevector-length carrier) cindex))
+      (error "Cannot encode data - payload is too large")))
