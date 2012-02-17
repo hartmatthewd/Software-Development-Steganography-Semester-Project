@@ -1,0 +1,27 @@
+Steganography Prototype
+
+Matthew  Hart    hart.ma@neu.edu
+Heinz    Pabst   pabst.h@neu.edu
+John     Reda    reda.jo@neu.edu
+Eliott   Wiener  wiener.e@neu.edu
+
+Runs with WAVE files. Stereo. 44100Hz sample rate. 16 bits per sample. RIFF format.
+
+No compilation necessary. Unpack the .tar.gz and run with the syntax specified below from the project folder.
+
+For encoding:
+
+    ./stegan --encode <CARRIER> <PAYLOAD> <OUTPUT>
+
+        where
+        <CARRIER> is the path of the audio file you want to hide the data in.
+        <PAYLOAD> is the path of the data file you want to hide in the carrier.
+        <OUTPUT>  is the path to the file where you want to write the copy of the carrier with the payload hidden within it.
+
+For decoding:
+
+    ./stegan --decode <CARRIER> <OUTPUT>
+
+        where
+        <CARRIER> is the path of the audio file a payload hidden within it.
+        <OUTPUT>  is the path where you want to write the payload to.
