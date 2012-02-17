@@ -4,9 +4,9 @@ if [ "$1" = "--encode" ]
 then
   if [ "$#" != 4 ]
   then
-    echo -e "stegan encode requires 3 arguments\nstegan --encode <filename of data to imprint> <original wav filename> <ou$a"
+    echo -e "stegan encode requires 3 arguments\nstegan --encode <original wav filename> <filename of data to imprint> <ou$a"
   else
-    larceny -- src/encoder/lsb.sch -e "(begin (encode-lsb \"$3\" \"$2\" \"$4\")(exit))"
+    larceny -- src/encoder/lsb.sch -e "(begin (encode-lsb \"$2\" \"$3\" \"$4\")(exit))"
   fi
 fi
 
