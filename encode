@@ -1,0 +1,2 @@
+#!/bin/bash
+larceny -- src/encoder/lsb.sch -e '(begin (encode-lsb "testcarrier" "testpayload" "testencoded")(exit))'

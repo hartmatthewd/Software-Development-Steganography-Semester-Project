@@ -1,3 +1,4 @@
+(load "src/shared/fileio.sch")
 (load "src/decoder/util.sch")
 
 ; Given a byte, return the least significant bit
@@ -27,3 +28,8 @@
                  (begin (vector-set! bitvector bindex (get-lsb-from-bytevector carrier cindex))
                         (fill-bitvector (+ cindex 2) pindex bitvector (+ bindex 1))))))))
        (fill-bitvector cindex 0 (make-vector 8 0) 0))))
+
+; Perform decoding operation given string filenames for carrier and out
+(define (decode-lsb carrier out)
+   (write-bytevector-to-file out 
+      (get-payload-from-carrier-lsb (read-file-into-bytevector carrier) 44)))

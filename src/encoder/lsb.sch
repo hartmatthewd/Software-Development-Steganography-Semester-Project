@@ -1,5 +1,4 @@
-; WARNING - current version has no protection from the payload being too large to fit in the carrier.
-
+(load "src/shared/fileio.sch")
 (load "src/encoder/util.sch")
 
 ; Returns a byte equal to the given byte only with the least significant bit set to the given bit
@@ -40,3 +39,9 @@
 (define (ensure-able-to-encode-lsb carrier cindex payload)
   (if (> (* (- (bytevector-length payload) 1) 16) (- (bytevector-length carrier) cindex))
       (error "Cannot encode data - payload is too large")))
+
+; Perform encoding operation given string filenames for carrier, payload, and out
+(define (encode-lsb carrier payload out) 
+   (let ((carrier-bv (read-file-into-bytevector carrier)) (payload-bv (read-file-into-bytevector payload))) 
+      (encode-payload-via-lsb carrier-bv 44 payload-bv) 
+      (write-bytevector-to-file out carrier-bv)))

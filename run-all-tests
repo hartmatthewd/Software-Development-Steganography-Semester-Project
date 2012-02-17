@@ -1,0 +1,2 @@
+#!/bin/bash
+larceny -- tst/load-all-tests.sch -e "(begin (run-all-tests)(newline)(exit))"

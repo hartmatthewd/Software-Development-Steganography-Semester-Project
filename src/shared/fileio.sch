@@ -8,3 +8,9 @@
                 (error (string-append "File " file " is empty"))
                 bv)))
        (error (string-append "File " file " does not exist"))))
+
+; Writes the given bytevector to a file of the given name
+(define (write-bytevector-to-file filename bytevector)
+   (let ((file (open-file-output-port filename)))
+      (put-bytevector file bytevector)
+      (close-port file)))
