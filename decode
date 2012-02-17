@@ -1,2 +1,0 @@
-#!/bin/bash
-larceny -- src/decoder/lsb.sch -e '(begin (decode-lsb "testencoded" "testdecoded")(exit))'

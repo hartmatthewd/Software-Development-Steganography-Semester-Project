@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "$1" = "--encode" ]
+then
+  if [ "$#" != 4 ]
+  then
+    echo -e "stegan encode requires 3 arguments\nstegan --encode <filename of data to imprint> <original wav filename> <ou$a"
+  else
+    larceny -- src/encoder/lsb.sch -e "(begin (encode-lsb \"$3\" \"$2\" \"$4\")(exit))"
+  fi
+fi
+
+if [ "$1" = "--decode" ]
+then
+  if [ "$#" != 3 ]
+  then
+    echo -e "stegan decode requires 2 arguments\nstegan --decode <filename of WAV file> <output filename>"
+  else
+    larceny -- src/decoder/lsb.sch -e "(begin (decode-lsb \"$2\" \"$3\")(exit))"
+  fi
+fi
