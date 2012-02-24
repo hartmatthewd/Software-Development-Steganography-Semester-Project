@@ -1,12 +1,8 @@
-(load "tst/encoder/lsb.sch")
 (load "tst/encoder/util.sch")
-(load "tst/decoder/lsb.sch")
 (load "tst/decoder/util.sch")
 (load "tst/shared/util.sch")
 
 (define (run-all-tests)
-   (run-lsb-encoding-tests)
-   (run-lsb-decoding-tests)
    (run-encoder-util-tests)
    (run-decoder-util-tests)
    (run-util-tests)

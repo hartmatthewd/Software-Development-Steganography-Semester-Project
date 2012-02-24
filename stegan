@@ -1,21 +1,23 @@
 #!/bin/bash
 
-if [ "$1" = "--encode" ]
+# Syntax for executing racket from command line -> /proj/racket/bin/racket -f <file> -e <function>
+
+if [ "$1" = "--encode" ] 
 then
-  if [ "$#" != 4 ]
+  if [ "$#" != 4 ] 
   then
     echo -e "stegan encode requires 3 arguments\nstegan --encode <original wav filename> <filename of data to imprint> <ou$a"
   else
-    larceny -- src/encoder/lsb.sch -e "(begin (encode-lsb \"$2\" \"$3\" \"$4\")(exit))"
+    echo -e "implement the stego script"
   fi
-fi
-
-if [ "$1" = "--decode" ]
+elif [ "$1" = "--decode" ] 
 then
-  if [ "$#" != 3 ]
+  if [ "$#" != 3 ] 
   then
     echo -e "stegan decode requires 2 arguments\nstegan --decode <filename of WAV file> <output filename>"
   else
-    larceny -- src/decoder/lsb.sch -e "(begin (decode-lsb \"$2\" \"$3\")(exit))"
+    echo -e "implement the stego script"
   fi
+else
+  echo -e "Usage: stegan --encode|decode <args>..."
 fi
