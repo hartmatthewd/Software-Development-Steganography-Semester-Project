@@ -1,7 +1,11 @@
-;Given a byte string bs, determine if bs is from a .wav file
+;Given a byte string bs, determine if bs represents a .wav file
 (define (is-wav? bs)
-    (let ((check (lambda (index value) (= (bytes-ref bs index) value))))
-        (and (check 0 82)   ;R
-            (check 1 73)    ;I
-            (check 2 70)    ;F
-            (check 3 70)))) ;F
+    (let ((check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
+        (and (check 0 #\R)
+            (check 1 #\I)
+            (check 2 #\F)
+            (or (check 3 #\F) (check 3 #\X))
+            (check 8 #\W)
+            (check 9 #\A)
+            (check 10 #\V)
+            (check 11 #\E))))
