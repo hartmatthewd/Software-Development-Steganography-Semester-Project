@@ -1,6 +1,7 @@
-(load "tst/encoder/util.sch")
-(load "tst/decoder/util.sch")
-(load "tst/shared/util.sch")
+(require rackunit)
+(load "tst/encoder/util.rkt")
+(load "tst/decoder/util.rkt")
+(load "tst/shared/util.rkt")
 
 (define (run-all-tests)
    (run-encoder-util-tests)

@@ -1,0 +1,15 @@
+(load "src/decoder/util.rkt")
+
+(define (run-decoder-util-tests)
+   (display "tst/decoder/util.rkt") (newline)
+   (get-byte-from-bit-vector-test))
+
+(define (get-byte-from-bit-vector-test)
+   (let ((v (make-vector 8 0)))
+     (check-equal? (get-byte-from-bit-vector v) 0)
+     (vector-set! v 7 1)
+     (check-equal? (get-byte-from-bit-vector v) 1)
+     (vector-set! v 5 1)
+     (check-equal? (get-byte-from-bit-vector v) 5)
+     (vector-set! v 4 1)
+     (check-equal? (get-byte-from-bit-vector v) 13)))

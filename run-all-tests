@@ -1,2 +1,2 @@
 #!/bin/bash
-/proj/racket/bin/racket -f tst/load-all-tests.sch -e "(begin (run-all-tests)(newline)(exit))"
+/proj/racket/bin/racket -f tst/load-all-tests.rkt -e "(begin (run-all-tests)(newline)(exit))"
