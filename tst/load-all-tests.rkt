@@ -7,7 +7,4 @@
    (run-encoder-util-tests)
    (run-decoder-util-tests)
    (run-util-tests)
-
-   (display "--------------------")
-   (newline)
-   (display "All tests succeeded!"))
+)

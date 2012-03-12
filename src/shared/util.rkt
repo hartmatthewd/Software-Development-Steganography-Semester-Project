@@ -47,20 +47,18 @@
                                     (when (not (= sample (vector-length samples)))
                                           (begin (bytes-set! bytes byte       (get-first-byte (vector-ref samples sample)))
                                                  (bytes-set! bytes (+ byte 1) (get-second-byte (vector-ref samples sample)))
-                                                 (set-next-byte (+ byte (* 2 (wavfile-channels wav))) (+ sample 1)))))))
-            (set-next-byte (+ (wavfile-chunkstart wav) (* 2 channel)) 0)))
+                                                 (set-next-byte (+ byte (wavfile-blockalign wav)) (+ sample 1)))))))
+            (set-next-byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 0)))
 
 
 
-;;; Returns a vector representing the samples of either the left or right channel
+;;; Sets the vector representing the samples of either the left or right channel
 ;;; bytes - a bytestring representing wav file data
 ;;; wav - the wavfile to write to
 ;;; channel - the channel to convert
-;;; TODO - this assumes 2 byte samples, maybe change this
 
 (define (set-wavfile-samples-for-channel bytes wav channel)
-    (letrec ((samples (vector-ref (wavfile-samples wav)
-                                  channel))
+    (letrec ((samples (vector-ref (wavfile-samples wav) channel))
              (get-sample-value (if (equal? (wavfile-endianess wav) 'little)
                                    (lambda (a b) (+ a (* 256 b)))
                                    (lambda (a b) (+ (* 256 a) b))))
@@ -70,8 +68,8 @@
                                                                 sample 
                                                                 (get-sample-value (bytes-ref bytes byte) 
                                                                                   (bytes-ref bytes (+ byte 1))))
-                                                   (set-next-sample (+ byte (* 2 (wavfile-channels wav))) (+ sample 1)))))))
-            (set-next-sample (+ (wavfile-chunkstart wav) (* 2 channel)) 0)))
+                                                   (set-next-sample (+ byte (wavfile-blockalign wav)) (+ sample 1)))))))
+            (set-next-sample (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 0)))
 
 
 
@@ -92,6 +90,19 @@
             (set-next-channel 0)))
 
 
+;; Inits the samples of the given wavfile so they can be set from the file's bytes
+(define (init-samples wav)
+    (letrec ((doit (lambda (channel)
+                           (when (< channel (wavfile-channels wav))
+                                 (begin (vector-set! (wavfile-samples wav) channel (make-vector (/ (wavfile-chunksize wav) 
+                                                                                                   (* (/ (wavfile-bitspersample wav) 
+                                                                                                         8) 
+                                                                                                      (wavfile-channels wav)))
+                                                                                                0))
+                                        (doit (+ channel 1)))))))
+            (doit 0)))
+
+
 ;;; Given a file, create a wavfile struct
 ;;; Requires - shared/fileio.rkt, shared/wav.sps
 ;;; TODO - when not wav, convert to wav
@@ -100,7 +111,8 @@
          (if (is-wav? bytes)
              (let ((wav (call-with-values (lambda () (parse-wave-header bytes))
                                           (lambda (e af c sr by ba bps s cs) 
-                                                  (wavfile e af c sr by ba bps s (- cs s) (make-vector c (make-vector (/ (- cs s) (* 2 c)) 0)))))))
+                                                  (wavfile e af c sr by ba bps s (- cs s) (make-vector c))))))
+                  (init-samples wav)
                   (set-wavfile-samples bytes wav)
                   wav)
              (error "File is not a wav file"))))
