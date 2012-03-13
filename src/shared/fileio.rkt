@@ -17,9 +17,8 @@
 
 ; Writes the given bytevector to a file of the given name
 (define (write-bytestring-to-file bytestring file)
-   (if (file-exists? file)
-       (delete-file file)
-       '())
+   (when (file-exists? file)
+       (delete-file file))
    (display-to-file bytestring file))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -28,9 +27,10 @@
 ;;;;;;;;					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;Given a byte string bs, determine if bs represents a .wav file
-(define (is-wav? bs)
-    (let ((check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
+;Given a file, determine if the file represents a .wav file
+(define (is-wav? file)
+    (let* ((bs (read-bytes 12 (open-input-file file)))
+           (check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
         (and (check 0 #\R)
             (check 1 #\I)
             (check 2 #\F)
@@ -40,10 +40,11 @@
             (check 10 #\V)
             (check 11 #\E))))
 
-;Given a byte string bs, determine if bs represents a .mp3 file
+;Given a file, determine if the file represents a .mp3 file
 ;NOTE: This is a pretty simplistic checking method. It only works for MP3s with ID3 metadata tags.
-(define (is-mp3? bs)
-    (let ((check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
+(define (is-mp3? file)
+    (let* ((bs (read-bytes 3 (open-input-file file)))
+           (check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
         (and (check 0 #\I)
             (check 1 #\D)
             (check 2 #\3))))
@@ -59,3 +60,89 @@
 
 (define (mp3->wav mp3 wav)
    (system (string-append lame-path " --decode " mp3 " " wav)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Extracted from: /course/cs4500wc/Examples/Wave/wav.sps
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Copyright 2010 William D Clinger.
+;
+; Permission to copy this software, in whole or in part, to use this
+; software for any lawful purpose, and to redistribute this software
+; is granted subject to the restriction that all copies made of this
+; software must include this copyright notice in full.
+;
+; I also request that you send me a copy of any improvements that you
+; make to this software so that they may be incorporated within it to
+; the benefit of the Scheme community.
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require rnrs/bytevectors-6)
+(require rnrs/base-6)
+
+(define (parse-wave-header bvec)
+  (if (not (>= (bytevector-length bvec) 44))
+      (error 'parse-wave-header "WAVE file too short" bvec))
+  (let* ((fetch (lambda (i) (bytevector-u8-ref bvec i)))
+         (chunkID
+          (apply string
+                 (map integer->char
+                      (map fetch '(0 1 2 3)))))
+         (endianness (cond ((string=? chunkID "RIFF") 'little)
+                           ((string=? chunkID "RIFX") 'big)
+                           (else
+                            (error 'parse-wave-header
+                                   "bad ChunkID" chunkID))))
+         (chunkSize (bytevector-u32-ref bvec 4 endianness))
+         (format0
+          (apply string
+                 (map integer->char
+                      (map fetch '(8 9 10 11)))))
+
+         (subchunk1ID
+          (apply string
+                 (map integer->char
+                      (map fetch '(12 13 14 15)))))
+         (subchunk1Size (bytevector-u32-ref bvec 16 endianness))
+         (audioFormat   (bytevector-u16-ref bvec 20 endianness))
+         (numChannels   (bytevector-u16-ref bvec 22 endianness))
+         (sampleRate    (bytevector-u32-ref bvec 24 endianness))
+         (byteRate      (bytevector-u32-ref bvec 28 endianness))
+         (blockAlign    (bytevector-u16-ref bvec 32 endianness))
+         (bitsPerSample (bytevector-u16-ref bvec 34 endianness))
+
+         (subchunk2ID
+          (apply string
+                 (map integer->char
+                      (map fetch '(36 37 38 39)))))
+         (subchunk2Size (bytevector-u32-ref bvec 40 endianness)))
+    (cond ((and (string=? format0 "WAVE")
+                (string=? subchunk1ID "fmt ")
+                (= subchunk1Size 16)
+                (= audioFormat 1)                ; PCM
+                (<= 1 numChannels 2)             ; mono or stereo
+                (= byteRate
+                   (* sampleRate numChannels (div bitsPerSample 8)))
+                (= blockAlign
+                   (* numChannels (div bitsPerSample 8)))
+                (= 0 (mod bitsPerSample 8))
+                (string=? subchunk2ID "data")
+                (= 0 (mod subchunk2Size blockAlign)))
+           (values endianness
+                   audioFormat
+                   numChannels
+                   sampleRate
+                   byteRate
+                   blockAlign
+                   bitsPerSample
+                   44
+                   (+ 8 chunkSize)))
+          (else
+           (error 'parse-wave-header
+                  "unrecognized or illegal WAVE format"
+                  chunkID chunkSize format0
+                  subchunk1ID subchunk1Size audioFormat numChannels
+                  byteRate blockAlign bitsPerSample
+                  subchunk2ID subchunk2Size)))))
