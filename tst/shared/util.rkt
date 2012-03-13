@@ -5,7 +5,7 @@
    (init-samples sample-wavfile)
    (test-write-wavfile-bytes-for-channel)
    (test-set-wavfile-samples-for-channel)
-   (test-write-wavfile-bytes)
+   (test-write-wavfile-to-bytes)
    (test-set-wavfile-samples)
 )
 
@@ -21,11 +21,11 @@
         (write-wavfile-bytes-for-channel bytes sample-wavfile 1)
         (check-true (bytes=? bytes control))))
 
-(define (test-write-wavfile-bytes)
+(define (test-write-wavfile-to-bytes)
    (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1)) 
             (control (bytes-append (make-bytes 44 1) 
                                    (make-bytes (wavfile-chunksize sample-wavfile) 0))))
-        (write-wavfile-bytes bytes sample-wavfile)
+        (write-wavfile-to-bytes sample-wavfile bytes)
         (check-true (bytes=? bytes control))))
 
 (define (test-set-wavfile-samples-for-channel)
