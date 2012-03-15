@@ -86,10 +86,14 @@
 ;NOTE: This is a pretty simplistic checking method. It only works for MP3s with ID3 metadata tags.
 (define (is-mp3? file)
     (let* ((bs (read-bytes 3 (open-input-file file)))
+           (firsttwo (bitwise-and (+ (* 256 (bytes-ref bs 0)) (bytes-ref bs 1)) 65534)) ;65534 = 0xFFFE
            (check (lambda (index value) (= (bytes-ref bs index) (char->integer value)))))
-        (and (check 0 #\I)
-            (check 1 #\D)
-            (check 2 #\3))))
+          (or (and (check 0 #\I)
+                   (check 1 #\D)
+                   (check 2 #\3))
+              (or (= firsttwo 65530)     ;0xFFFA MP3 v1.0
+                  (= firsttwo 65522)     ;0xFFF2 MP3 v2.0
+                  (= firsttwo 65506))))) ;0xFFE2 MP3 v2.5
 
 (define lame-path "/course/cs4500wc/bin/lame")
 
