@@ -1,6 +1,8 @@
 ;;;
 ;;; Functions handling reading the writing of files. Also handles transformation from wav to mp3 and back
 ;;;
+;;; Requires: util.rkt
+;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -21,7 +23,7 @@
 ;;; Writes the given wavfile to the given file
 
 (define (wavfile->file wav file)
-    (let ((bytes (make-bytes (+ chunkstart chunksize))))
+    (let ((bytes (make-bytes (+ (wavfile-chunkstart wav) (wavfile-chunksize wav)))))
          (write-wavfile-header-to-bytes wav bytes)
          (write-wavfile-to-bytes wav bytes)
          (write-bytestring-to-file bytes file)))
@@ -56,7 +58,7 @@
 (define (ensure-is-wav file)
     (if (is-wav? file)
         file
-        (let ((tmpfile "_temp.wav"))
+        (let ((tmpfile "/tmp/_temp.wav"))
              (begin (mp3->wav file tmpfile)
                     tmpfile))))
 
@@ -65,7 +67,7 @@
 (define (ensure-is-mp3 file)
     (if (is-mp3? file)
         file
-        (let ((tmpfile "_temp.mp3"))
+        (let ((tmpfile "/tmp/_temp.mp3"))
              (begin (wav->mp3 file tmpfile)
                     tmpfile))))
 
@@ -203,15 +205,12 @@
 ;;; bytes - the bytestring to convert to a wavfile
 
 (define (bytes->wavfile bytes)
-   (if (is-wav? bytes)
-       (let ((wav (call-with-values (lambda () (parse-wave-header bytes))
-                                    (lambda (e af c sr by ba bps s cs)
-                                            (wavfile e af c sr by ba bps s (- cs s) (make-vector c))))))
-            (init-samples wav)
-            (set-wavfile-samples bytes wav)
-            wav)
-       (error "File is not a wav file")))
-
+   (let ((wav (call-with-values (lambda () (parse-wave-header bytes))
+                                (lambda (e af c sr by ba bps s cs)
+                                        (wavfile e af c sr by ba bps s (- cs s) (make-vector c))))))
+        (init-samples wav)
+        (set-wavfile-samples bytes wav)
+        wav))
 
 ;;; Writes the header of the given wavfile to the given bytestring
 
@@ -220,9 +219,27 @@
         (bytes-set! bytes 1 (char->integer #\I))
         (bytes-set! bytes 2 (char->integer #\F))
         (bytes-set! bytes 3 (char->integer #\F))
-        
-)
-
+        (bytes-copy! bytes 4 (value->bytes (+ 36 (wavfile-chunksize wav)) 'little 4))
+        (bytes-set! bytes 8 (char->integer #\W))
+        (bytes-set! bytes 9 (char->integer #\A))
+        (bytes-set! bytes 10 (char->integer #\V))
+        (bytes-set! bytes 11 (char->integer #\E))
+        (bytes-set! bytes 12 (char->integer #\f))
+        (bytes-set! bytes 13 (char->integer #\m))
+        (bytes-set! bytes 14 (char->integer #\t))
+        (bytes-set! bytes 15 (char->integer #\space))
+        (bytes-copy! bytes 16 (value->bytes 16 'little 4))
+        (bytes-copy! bytes 20 (value->bytes (wavfile-audioformat wav) 'little 2))
+        (bytes-copy! bytes 22 (value->bytes (wavfile-channels wav) 'little 2))
+        (bytes-copy! bytes 24 (value->bytes (wavfile-samplerate wav) 'little 4))
+        (bytes-copy! bytes 28 (value->bytes (wavfile-byterate wav) 'little 4))
+        (bytes-copy! bytes 32 (value->bytes (wavfile-blockalign wav) 'little 2))
+        (bytes-copy! bytes 34 (value->bytes (wavfile-bitspersample wav) 'little 2))
+        (bytes-set! bytes 36 (char->integer #\d))
+        (bytes-set! bytes 37 (char->integer #\a))
+        (bytes-set! bytes 38 (char->integer #\t))
+        (bytes-set! bytes 39 (char->integer #\a))
+        (bytes-copy! bytes 40 (value->bytes (wavfile-chunksize wav) 'little 4)))
 
 ;;; Given a bytestring and a wavfile struct, rewrite *destructively* the wav samples to the bytestring
 ;;; wav - the wavfile of whos samples to write

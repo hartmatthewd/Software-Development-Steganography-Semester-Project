@@ -3,7 +3,8 @@
 (define (run-util-tests)
    (display "tst/util.rkt") (newline)
    (get-byte-from-bit-vector-test)
-   (get-bits-from-byte-test))
+   (get-bits-from-byte-test)
+   (value->bytes-test))
 
 (define (get-bits-from-byte-test)
    (let ((v8 (get-bits-from-byte 8)) (v13 (get-bits-from-byte 13)))
@@ -21,3 +22,14 @@
      (check-equal? (get-byte-from-bit-vector v) 5)
      (vector-set! v 4 1)
      (check-equal? (get-byte-from-bit-vector v) 13)))
+
+(define (value->bytes-test)
+   (check-equal? (bytes 1 0 0 0) (value->bytes 1 'little 4))
+   (check-equal? (bytes 0 0 0 1) (value->bytes 1 'big 4))
+   (check-equal? (bytes 8 1 0 0) (value->bytes 264 'little 4))
+   (check-equal? (bytes 0 0 1 8) (value->bytes 264 'big 4))
+
+   (check-equal? (bytes 1 0 0) (value->bytes 1 'little 3))
+   (check-equal? (bytes 0 0 1) (value->bytes 1 'big 3))
+   (check-equal? (bytes 8 1 0) (value->bytes 264 'little 3))
+   (check-equal? (bytes 0 1 8) (value->bytes 264 'big 3)))

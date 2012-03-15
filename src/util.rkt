@@ -21,6 +21,20 @@
                  (set-bit (- index 1) (arithmetic-shift byte -1)))))))
       (set-bit 7 byte)) v))
 
+;;; Given a real number value, an endianess and a number of bytes, 
+;;; return a bytestring of the given length representing that value
+(define (value->bytes val end len)
+    (letrec ((bytes (make-bytes len))
+             (get-i (if (eq? 'little end)
+                       (lambda (i) i)
+                       (lambda (i) (- len i 1))))
+             (recurse (lambda (v i) (if (= i len)
+                                        bytes
+                                        (let ((j (modulo v 256)))
+                                             (bytes-set! bytes (get-i i) j)
+                                             (recurse (/ (- v j) 256) (+ i 1)))))))
+            (recurse val 0)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Extracted from: /course/cs4500wc/Examples/FFT/fft.sls
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
