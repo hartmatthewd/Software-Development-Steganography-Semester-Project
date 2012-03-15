@@ -1,11 +1,7 @@
 (require rackunit)
-(load "tst/encoder/util.rkt")
-(load "tst/decoder/util.rkt")
-(load "tst/shared/util.rkt")
-(load "tst/shared/fileio.rkt")
+(load "tst/util.rkt")
+(load "tst/fileio.rkt")
 
 (define (run-all-tests)
-   (run-encoder-util-tests)
-   (run-decoder-util-tests)
    (run-util-tests)
    (run-fileio-tests))

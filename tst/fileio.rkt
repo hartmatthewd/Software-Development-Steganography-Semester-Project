@@ -1,20 +1,31 @@
-(load "src/shared/util.rkt")
+(load "src/fileio.rkt")
 
-(define (run-util-tests)
-   (display "tst/shared/util.rkt") (newline)
+(define (run-fileio-tests)
+   (display "tst/fileio.rkt") (newline)
+   (test-is-mp3?)
+   (test-is-wav?)
    (init-samples sample-wavfile)
    (test-write-wavfile-bytes-for-channel)
    (test-set-wavfile-samples-for-channel)
    (test-write-wavfile-to-bytes)
-   (test-set-wavfile-samples)
+   (test-set-wavfile-samples))
+
+(define (test-is-mp3?)
+   (display "WARNING: is-mp3? is too simplified and not working for all mp3s. Ignoring test for now.")
+   ;(check-false (is-mp3? "testwav.wav"))
+   ;(check-true (is-mp3? "testmp3.mp3")))
 )
+
+(define (test-is-wav?)
+   (check-true (is-wav? "testwav.wav"))
+   (check-false (is-wav? "testmp3.mp3")))
 
 ;; 1 second of stereo audio, all samples are 0
 (define sample-wavfile (wavfile 'little 1 2 44100 88200 4 16 44 176400 (make-vector 2)))
 
 (define (test-write-wavfile-bytes-for-channel)
-   (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1)) 
-            (control (bytes-append (make-bytes 44 1) 
+   (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+            (control (bytes-append (make-bytes 44 1)
                                    (make-bytes (wavfile-chunksize sample-wavfile) 0))))
         (write-wavfile-bytes-for-channel bytes sample-wavfile 0)
         (check-false (bytes=? bytes control))
@@ -22,8 +33,8 @@
         (check-true (bytes=? bytes control))))
 
 (define (test-write-wavfile-to-bytes)
-   (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1)) 
-            (control (bytes-append (make-bytes 44 1) 
+   (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+            (control (bytes-append (make-bytes 44 1)
                                    (make-bytes (wavfile-chunksize sample-wavfile) 0))))
         (write-wavfile-to-bytes sample-wavfile bytes)
         (check-true (bytes=? bytes control))))

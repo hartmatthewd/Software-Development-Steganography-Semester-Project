@@ -1,0 +1,23 @@
+(load "src/util.rkt")
+
+(define (run-util-tests)
+   (display "tst/util.rkt") (newline)
+   (get-byte-from-bit-vector-test)
+   (get-bits-from-byte-test))
+
+(define (get-bits-from-byte-test)
+   (let ((v8 (get-bits-from-byte 8)) (v13 (get-bits-from-byte 13)))
+     (check-equal? (vector-ref v8 4) 1)
+     (check-equal? (vector-ref v13 4) 1)
+     (check-equal? (vector-ref v13 5) 1)
+     (check-equal? (vector-ref v13 7) 1)))
+
+(define (get-byte-from-bit-vector-test)
+   (let ((v (make-vector 8 0)))
+     (check-equal? (get-byte-from-bit-vector v) 0)
+     (vector-set! v 7 1)
+     (check-equal? (get-byte-from-bit-vector v) 1)
+     (vector-set! v 5 1)
+     (check-equal? (get-byte-from-bit-vector v) 5)
+     (vector-set! v 4 1)
+     (check-equal? (get-byte-from-bit-vector v) 13)))
