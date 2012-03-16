@@ -2,6 +2,8 @@
 ;;; A set of various utility methods
 ;;;
 
+(define pi (acos -1.0))
+
 ; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
 (define (get-byte-from-bit-vector bits)
   (letrec
@@ -57,7 +59,7 @@
 (require rnrs/base-6)
 
 (define i2pi
-  (* 2.0 (acos -1.0) +1.0i))
+  (* 2.0 pi +1.0i))
 
 (define (fft a)
   (fft-in-place (bit-reverse-copy a) i2pi))
