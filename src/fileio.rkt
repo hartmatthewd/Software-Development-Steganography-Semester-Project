@@ -59,8 +59,8 @@
     (if (is-wav? file)
         file
         (let ((tmpfile "/tmp/_temp.wav"))
-             (begin (mp3->wav file tmpfile)
-                    tmpfile))))
+             (mp3->wav file tmpfile)
+                    tmpfile)))
 
 ;;; If the given file is a mp3 file, return it, else convert it to mp3 and return the converted file
 
@@ -68,8 +68,8 @@
     (if (is-mp3? file)
         file
         (let ((tmpfile "/tmp/_temp.mp3"))
-             (begin (wav->mp3 file tmpfile)
-                    tmpfile))))
+             (wav->mp3 file tmpfile)
+             tmpfile)))
 
 ;Given a file, determine if the file represents a .wav file
 (define (is-wav? file)
@@ -208,7 +208,6 @@
    (let ((wav (call-with-values (lambda () (parse-wave-header bytes))
                                 (lambda (e af c sr by ba bps s cs)
                                         (wavfile e af c sr by ba bps s (- cs s) (make-vector c))))))
-        (init-samples wav)
         (set-wavfile-samples bytes wav)
         wav))
 
@@ -246,11 +245,9 @@
 ;;; bytes - the bytes of which to write the wavfile samples to
 
 (define (write-wavfile-to-bytes wav bytes)
-    (letrec ((set-next-channel (lambda (channel)
-                                       (when (not (= channel (wavfile-channels wav)))
-                                             (begin (write-wavfile-bytes-for-channel bytes wav channel)
-                                                    (set-next-channel (+ 1 channel)))))))
-            (set-next-channel 0)))
+    (do [(channel 0 (+ 1 channel))]
+        [(= channel (wavfile-channels wav))]
+        (write-wavfile-bytes-for-channel bytes wav channel)))
 
 ;;; Writes *destructively* the given vector of samples to the bytes
 ;;; bytes - a bytestring to write to
@@ -262,23 +259,20 @@
     ;;; samples - a vector of samples
     ;;; get-first-byte - a function that, given a sample, returns the first byte (assumes 2 byte samples)
     ;;; get second byte - a function that, given a sample, returns the second byte (assumes 2 byte samples)
-    ;;; set-next-byte - sets the next 2 bytes of the given bytestring to the byte representation of the next sample
 
-    (letrec ((samples (vector-ref (wavfile-samples wav)
-                                  channel))
-             (get-first-byte (if (equal? (wavfile-endianess wav) 'little)
-                                 (lambda (sample) (modulo sample 256))
-                                 (lambda (sample) (floor (/ sample 256)))))
-             (get-second-byte (if (equal? (wavfile-endianess wav) 'little)
-                                  (lambda (sample) (floor (/ sample 256)))
-                                  (lambda (sample) (modulo sample 256))))
-             (set-next-byte (lambda (byte sample)
-                                    (when (not (= sample (vector-length samples)))
-                                          (begin (bytes-set! bytes byte       (get-first-byte (vector-ref samples sample)))
-                                                 (bytes-set! bytes (+ byte 1) (get-second-byte (vector-ref samples sample)))
-                                                 (set-next-byte (+ byte (wavfile-blockalign wav)) (+ sample 1)))))))
-            (set-next-byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 0)))
-
+    (let ((samples (vector-ref (wavfile-samples wav)
+                               channel))
+          (get-first-byte (if (equal? (wavfile-endianess wav) 'little)
+                              (lambda (sample) (modulo sample 256))
+                              (lambda (sample) (floor (/ sample 256)))))
+          (get-second-byte (if (equal? (wavfile-endianess wav) 'little)
+                               (lambda (sample) (floor (/ sample 256)))
+                               (lambda (sample) (modulo sample 256)))))
+          (do [(sample 0 (+ sample 1))
+               (byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) (+ byte (wavfile-blockalign wav)))]
+              [(= sample (vector-length samples))]
+              (bytes-set! bytes byte (get-first-byte (vector-ref samples sample)))
+              (bytes-set! bytes (+ byte 1) (get-second-byte (vector-ref samples sample))))))
 
 
 ;;; Sets the vector representing the samples of either the left or right channel
@@ -289,20 +283,16 @@
 (define (set-wavfile-samples-for-channel bytes wav channel)
 
     ;;; get-sample-value - given 2 bytes that make up a sample (assumes 2 byte samples), return the sample value
-    ;;; set-next-sample - sets the next sample to the value created by the next 2 bytes
 
-    (letrec ((samples (vector-ref (wavfile-samples wav) channel))
-             (get-sample-value (if (equal? (wavfile-endianess wav) 'little)
-                                   (lambda (a b) (+ a (* 256 b)))
-                                   (lambda (a b) (+ (* 256 a) b))))
-             (set-next-sample (lambda (byte sample)
-                                      (when (not (= sample (vector-length samples)))
-                                            (begin (vector-set! samples
-                                                                sample
-                                                                (get-sample-value (bytes-ref bytes byte)
-                                                                                  (bytes-ref bytes (+ byte 1))))
-                                                   (set-next-sample (+ byte (wavfile-blockalign wav)) (+ sample 1)))))))
-            (set-next-sample (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 0)))
+    (let ((samples (vector-ref (wavfile-samples wav) channel))
+          (get-sample-value (if (equal? (wavfile-endianess wav) 'little)
+                                (lambda (a b) (+ a (* 256 b)))
+                                (lambda (a b) (+ (* 256 a) b)))))
+         (do [(byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) (+ byte (wavfile-blockalign wav)))
+              (sample 0 (+ 1 sample))]
+             [(= sample (vector-length samples))]
+             (vector-set! samples sample (get-sample-value (bytes-ref bytes byte)
+                                                           (bytes-ref bytes (+ byte 1)))))))
 
 
 
@@ -311,24 +301,9 @@
 ;;; wav - the wavfile to set the samples of
 
 (define (set-wavfile-samples bytes wav)
-    (letrec ((set-next-channel (lambda (channel)
-                                       (when (not (= channel (wavfile-channels wav)))
-                                             (begin (set-wavfile-samples-for-channel bytes wav channel)
-                                                    (set-next-channel (+ 1 channel)))))))
-            (set-next-channel 0)))
-
-
-;;; Inits the samples of the given wavfile so they can be set from the file's bytes
-;;; wav - inits the sample vectors to empty vectors
-
-(define (init-samples wav)
-    (letrec ((doit (lambda (channel)
-                           (when (< channel (wavfile-channels wav))
-                                 (begin (vector-set! (wavfile-samples wav) channel (make-vector (/ (wavfile-chunksize wav)
-                                                                                                   (* (/ (wavfile-bitspersample wav)
-                                                                                                         8)
-                                                                                                      (wavfile-channels wav)))
-                                                                                                0))
-                                        (doit (+ channel 1)))))))
-            (doit 0)))
-
+    (do [(channel 0 (+ 1 channel))]
+        [(= channel (wavfile-channels wav))]
+        (vector-set! (wavfile-samples wav) channel (make-vector (/ (wavfile-chunksize wav)
+                                                                   (* (/ (wavfile-bitspersample wav) 8)
+                                                                      (wavfile-channels wav)))))
+        (set-wavfile-samples-for-channel bytes wav channel)))

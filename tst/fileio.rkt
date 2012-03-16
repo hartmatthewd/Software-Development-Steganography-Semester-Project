@@ -4,7 +4,6 @@
    (display "tst/fileio.rkt") (newline)
    (test-is-mp3?)
    (test-is-wav?)
-   (init-samples sample-wavfile)
    (test-write-wavfile-bytes-for-channel)
    (test-set-wavfile-samples-for-channel)
    (test-write-wavfile-to-bytes)
@@ -21,7 +20,7 @@
    (check-false (is-wav? "testmp3.mp3")))
 
 ;; 1 second of stereo audio, all samples are 0
-(define sample-wavfile (wavfile 'little 1 2 44100 88200 4 16 44 176400 (make-vector 2)))
+(define sample-wavfile (wavfile 'little 1 2 44100 88200 4 16 44 176400 (vector (make-vector 44100) (make-vector 44100))))
 
 (define (test-write-wavfile-bytes-for-channel)
    (letrec ((bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
