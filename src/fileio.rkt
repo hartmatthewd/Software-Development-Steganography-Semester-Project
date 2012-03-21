@@ -4,22 +4,29 @@
 ;;; Requires: util.rkt
 ;;;
 
+;;;;;;;;;;;;;;;;;;
+;;; The path where to find the lame encoder
+(define lame-path "/course/cs4500wc/bin/lame")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
 ;;;;;;;;     Reading and writing of WAV files
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;
 ;;; A holder for all the data needed to recreate the wav file
 (struct wavfile (endianess audioformat channels samplerate byterate blockalign bitspersample chunkstart chunksize samples))
 
 
+;;;;;;;;;;;;;;;;;;
 ;;; Return a wavfile representation of the given file
 
 (define (file->wavfile file)
     (bytes->wavfile (read-file-into-bytestring (ensure-is-wav file))))
 
 
+;;;;;;;;;;;;;;;;;;
 ;;; Writes the given wavfile to the given file
 
 (define (wavfile->file wav file)
@@ -34,6 +41,7 @@
 ;;;;;;;;					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;
 ; Attepts to read the given file, returning a bytestring containing the file's bytes
 ; If the file does not exist, throws an error
 (define (read-file-into-bytestring file)
@@ -41,6 +49,7 @@
        (file->bytes file)
        (error (string-append "File " file " does not exist"))))
 
+;;;;;;;;;;;;;;;;;;
 ; Writes the given bytevector to a file of the given name
 (define (write-bytestring-to-file bytestring file)
    (when (file-exists? file)
@@ -53,6 +62,7 @@
 ;;;;;;;;					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;
 ;;; If the given file is a wav file, return it, else convert it to wav and return the converted file
 
 (define (ensure-is-wav file)
@@ -62,6 +72,7 @@
              (mp3->wav file tmpfile)
                     tmpfile)))
 
+;;;;;;;;;;;;;;;;;;
 ;;; If the given file is a mp3 file, return it, else convert it to mp3 and return the converted file
 
 (define (ensure-is-mp3 file)
@@ -71,6 +82,7 @@
              (wav->mp3 file tmpfile)
              tmpfile)))
 
+;;;;;;;;;;;;;;;;;;
 ;Given a file, determine if the file represents a .wav file
 (define (is-wav? file)
     (let* ((bs (read-bytes 12 (open-input-file file)))
@@ -84,6 +96,7 @@
             (check 10 #\V)
             (check 11 #\E))))
 
+;;;;;;;;;;;;;;;;;;
 ;Given a file, determine if the file represents a .mp3 file
 ;NOTE: This is a pretty simplistic checking method. It only works for MP3s with ID3 metadata tags.
 (define (is-mp3? file)
@@ -97,13 +110,14 @@
                   (= firsttwo 65522)     ;0xFFF2 MP3 v2.0
                   (= firsttwo 65506))))) ;0xFFE2 MP3 v2.5
 
-(define lame-path "/course/cs4500wc/bin/lame")
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given an input wav file and an output mp3 path, convert the wav to mp3 via the LAME encoder and output it at the given mp3 output path
 
 (define (wav->mp3 wav mp3)
    (system (string-append lame-path " " wav " " mp3)))
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given an input mp3 file and an output wav path, convert the mp3 to wav via the LAME encoder and output it at the given wav output path
 
 (define (mp3->wav mp3 wav)

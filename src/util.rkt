@@ -1,33 +1,35 @@
-;;;
-;;; A set of various utility methods
-;;;
-
+;;; pi (3.1415.....)
 (define pi (acos -1.0))
+;;; the number of samples to use for each fft
 (define samples-per-fft 128)
-(define duplicate-encoding-each-channel #f)
 
+;;;;;;;;;;;;;;;;;;
+;;; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
+;;; bits - the vector of bits of which to make a byte out of
 
-; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
 (define (get-byte-from-bit-vector bits)
-  (letrec
-    ((set-bit (lambda (index byte)
-      (if (= index 8)
-          byte
-          (set-bit (+ index 1) (bitwise-ior (vector-ref bits index) (arithmetic-shift byte 1)))))))
-    (set-bit 1 (bitwise-ior 0 (vector-ref bits 0)))))
+  (do [(index 1 (add1 index))
+       (byte (vector-ref bits 0) (bitwise-ior (vector-ref bits index) (arithmetic-shift byte 1)))]
+      [(= index 8) byte]))
 
-; Given a byte, return a list whos elements are the individual bits of the byte
+;;;;;;;;;;;;;;;;;;
+;;; Given a byte, return a list whos elements are the individual bits of the byte
+;;; byte - the byte of which to return a vector of its bits
+
 (define (get-bits-from-byte byte)
   (let ((v (make-vector 8)))
-    (letrec
-      ((set-bit (lambda (index byte)
-        (when (>= index 0)
-          (begin (vector-set! v index (bitwise-and byte 1))
-                 (set-bit (- index 1) (arithmetic-shift byte -1)))))))
-      (set-bit 7 byte)) v))
+    (do [(i 7 (sub1 i)) (b byte (arithmetic-shift b -1))]
+        [(< i 0)]
+        (vector-set! v i (bitwise-and b 1)))
+    v))
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given a real number value, an endianess and a number of bytes, 
 ;;; return a bytestring of the given length representing that value
+;;; val - the value to break into bytes
+;;; end - endianess of the byte to return ('little or 'big)
+;;; len - the number of bytes to turn the value into
+
 (define (value->bytes val end len)
     (letrec ((bytes (make-bytes len))
              (get-i (if (eq? 'little end)
@@ -37,20 +39,23 @@
                                         bytes
                                         (let ((j (modulo v 256)))
                                              (bytes-set! bytes (get-i i) j)
-                                             (recurse (/ (- v j) 256) (+ i 1)))))))
+                                             (recurse (/ (- v j) 256) (add1 i)))))))
             (recurse val 0)))
 
 
+;;;;;;;;;;;;;;;;;;
 ;;; Returns the next index of the samples to encode to
 
 (define current-samples-index 0)
-(define (get-next-sample-index samples)
+(define (get-next-sample-index)
     (set! current-samples-index (+ current-samples-index samples-per-fft))
     current-samples-index)
 ;;    (modulo (exact (floor (* (random) (vector-length samples)))) samples-per-fft))
 
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of frequencies in the frequency domain, find the fundamental frequency
+;;; frequencies - the vector of frequencies of which to find the fundamental one
 
 (define (get-fundamental-frequency frequencies)
     1)
@@ -63,10 +68,8 @@
 ;              (func (lambda (i n)
 ;                            (if (= n vector-mid)
 ;                                i
-;                                (func (get-index-with-max-mag i n) (+ n 1)))))]
+;                                (func (get-index-with-max-mag i n) (add1 n)))))]
 ;             (func 1 0)))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Extracted from: /course/cs4500wc/Examples/FFT/fft.sls
@@ -84,6 +87,39 @@
 ; the benefit of the Scheme community.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Complex FFT in R6RS Scheme
+;;;
+;;; Translated (by William D Clinger) from the pseudocode in
+;;;
+;;; Cormen, Leiserson, Rivest, and Stein.
+;;; Introduction to Algorithms, 3rd edition.
+;;; MIT Press, 2009.
+;;;
+;;; (fft v)
+;;;
+;;;     The input v must be a vector of complex numbers, and
+;;;     its length must be a power of 2.
+;;;
+;;;     Returns a vector of complex numbers of the same length
+;;;     as v.  If v represents samples in the time domain, then
+;;;     the result represents coefficients in the frequency
+;;;     domain.
+;;;
+;;; (fft-inverse v)
+;;;
+;;;     The input v must be a vector of complex numbers, and
+;;;     its length must be a power of 2.
+;;;
+;;;     Returns a vector of complex numbers of the same length
+;;;     as v.  If v represents coefficients in the frequency
+;;;     domain, then the result represents samples in the time
+;;;     domain.
+;;;
+;;; (fft-inverse (fft v)) returns v (to within roundoff error).
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (require rnrs/arithmetic/bitwise-6)
 (require rnrs/arithmetic/fixnums-6)
@@ -129,9 +165,3 @@
                      (u (vector-ref a (+ k j))))
                 (vector-set! a (+ k j) (+ u t))
                 (vector-set! a (+ k j m/2) (- u t))))))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;                                         
-;;;;;;;;     Locals
-;;;;;;;;					
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
