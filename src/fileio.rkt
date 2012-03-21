@@ -1,13 +1,3 @@
-;;;
-;;; Functions handling reading the writing of files. Also handles transformation from wav to mp3 and back
-;;;
-;;; Requires: util.rkt
-;;;
-
-;;;;;;;;;;;;;;;;;;
-;;; The path where to find the lame encoder
-(define lame-path "/course/cs4500wc/bin/lame")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
 ;;;;;;;;     Reading and writing of WAV files
@@ -141,9 +131,6 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(require rnrs/bytevectors-6)
-(require rnrs/base-6)
-
 (define (parse-wave-header bvec)
   (if (not (>= (bytevector-length bvec) 44))
       (error 'parse-wave-header "WAVE file too short" bvec))
@@ -215,6 +202,7 @@
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given a bytestring, create a wavfile struct
 ;;; bytes - the bytestring to convert to a wavfile
 
@@ -225,6 +213,7 @@
         (set-wavfile-samples bytes wav)
         wav))
 
+;;;;;;;;;;;;;;;;;;
 ;;; Writes the header of the given wavfile to the given bytestring
 
 (define (write-wavfile-header-to-bytes wav bytes)
@@ -254,6 +243,7 @@
         (bytes-set! bytes 39 (char->integer #\a))
         (bytes-copy! bytes 40 (value->bytes (wavfile-chunksize wav) 'little 4)))
 
+;;;;;;;;;;;;;;;;;;
 ;;; Given a bytestring and a wavfile struct, rewrite *destructively* the wav samples to the bytestring
 ;;; wav - the wavfile of whos samples to write
 ;;; bytes - the bytes of which to write the wavfile samples to
@@ -263,6 +253,7 @@
         [(= channel (wavfile-channels wav))]
         (write-wavfile-bytes-for-channel bytes wav channel)))
 
+;;;;;;;;;;;;;;;;;;
 ;;; Writes *destructively* the given vector of samples to the bytes
 ;;; bytes - a bytestring to write to
 ;;; wav - the wavfile to retrieve the samples from
@@ -271,24 +262,24 @@
 (define (write-wavfile-bytes-for-channel bytes wav channel)
 
     ;;; samples - a vector of samples
-    ;;; get-first-byte - a function that, given a sample, returns the first byte (assumes 2 byte samples)
-    ;;; get second byte - a function that, given a sample, returns the second byte (assumes 2 byte samples)
+    ;;; get-bytes - returns the 2 bytes that will make up the sample in proper order
 
-    (let ((samples (vector-ref (wavfile-samples wav)
-                               channel))
-          (get-first-byte (if (equal? (wavfile-endianess wav) 'little)
-                              (lambda (sample) (modulo sample 256))
-                              (lambda (sample) (modulo (div sample 256) 256))))
-          (get-second-byte (if (equal? (wavfile-endianess wav) 'little)
-                               (lambda (sample) (modulo (div sample 256) 256))
-                               (lambda (sample) (modulo sample 256)))))
+    (let [(samples (vector-ref (wavfile-samples wav) channel))
+          (get-bytes (if (equal? (wavfile-endianess wav) 'little)
+                         (lambda (sample) (get-u16l sample))
+                         (lambda (sample) (get-u16b sample))))]
           (do [(sample 0 (+ sample 1))
-               (byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) (+ byte (wavfile-blockalign wav)))]
+               (byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 
+                     (+ byte (wavfile-blockalign wav)))]
               [(= sample (vector-length samples))]
-              (bytes-set! bytes byte (get-first-byte (vector-ref samples sample)))
-              (bytes-set! bytes (+ byte 1) (get-second-byte (vector-ref samples sample))))))
+              (call-with-values (lambda () (get-bytes (vector-ref samples sample)))
+                                (lambda (v1 v2)
+                                        (bytes-set! bytes byte v1)
+                                        (bytes-set! bytes (+ byte 1) v2))))))
 
 
+
+;;;;;;;;;;;;;;;;;;
 ;;; Sets the vector representing the samples of either the left or right channel
 ;;; bytes - a bytestring representing wav file data
 ;;; wav - the wavfile to write to
@@ -300,16 +291,16 @@
 
     (let ((samples (vector-ref (wavfile-samples wav) channel))
           (get-sample-value (if (equal? (wavfile-endianess wav) 'little)
-                                (lambda (a b) (+ a (* 256 b)))
-                                (lambda (a b) (+ (* 256 a) b)))))
-         (do [(byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) (+ byte (wavfile-blockalign wav)))
-              (sample 0 (+ 1 sample))]
+                                (lambda (a b) (get-value-16l a b))
+                                (lambda (a b) (get-value-16b a b)))))
+         (do [(sample 0 (+ 1 sample))
+              (byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) 
+                    (+ byte (wavfile-blockalign wav)))]
              [(= sample (vector-length samples))]
              (vector-set! samples sample (get-sample-value (bytes-ref bytes byte)
                                                            (bytes-ref bytes (+ byte 1)))))))
 
-
-
+;;;;;;;;;;;;;;;;;;
 ;;; Given a bytestring and a wavfile struct, fill in the samples for each channel
 ;;; bytes - the bytestring to pull the samples out of
 ;;; wav - the wavfile to set the samples of

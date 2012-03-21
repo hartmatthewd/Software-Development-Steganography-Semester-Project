@@ -1,7 +1,3 @@
-;;; pi (3.1415.....)
-(define pi (acos -1.0))
-;;; the number of samples to use for each fft
-(define samples-per-fft 128)
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
@@ -37,7 +33,7 @@
                        (lambda (i) (- len i 1))))
              (recurse (lambda (v i) (if (= i len)
                                         bytes
-                                        (let ((j (modulo v 256)))
+                                        (let ((j (mod v 256)))
                                              (bytes-set! bytes (get-i i) j)
                                              (recurse (/ (- v j) 256) (add1 i)))))))
             (recurse val 0)))
@@ -46,11 +42,10 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns the next index of the samples to encode to
 
-(define current-samples-index 0)
 (define (get-next-sample-index)
     (set! current-samples-index (+ current-samples-index samples-per-fft))
     current-samples-index)
-;;    (modulo (exact (floor (* (random) (vector-length samples)))) samples-per-fft))
+;;    (mod (exact (floor (* (random) (vector-length samples)))) samples-per-fft))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -70,6 +65,27 @@
 ;                                i
 ;                                (func (get-index-with-max-mag i n) (add1 n)))))]
 ;             (func 1 0)))
+
+
+;;;;;;;;;;;;;;;;;;
+;;; Returns a 2 byte representation of the given value in little endian notation
+(define (get-u16l value)
+   (values (mod value 256) (mod (div value 256) 256)))
+
+;;;;;;;;;;;;;;;;;;
+;;; Returns a 2 byte representation of the given value in big endian notation
+(define (get-u16b value)
+   (values (mod (div value 256) 256) (mod value 256)))
+
+;;;;;;;;;;;;;;;;;;
+;;; Returns the value of the given 2 bytes as if they were in little endian notation
+(define (get-value-16l v1 v2)
+    (+ v1 (* 256 v2)))
+
+;;;;;;;;;;;;;;;;;;
+;;; Returns the value of the given 2 bytes as if they were in big endian notation
+(define (get-value-16b v1 v2)
+    (+ (* 256 v1) v2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Extracted from: /course/cs4500wc/Examples/FFT/fft.sls
@@ -119,14 +135,6 @@
 ;;; (fft-inverse (fft v)) returns v (to within roundoff error).
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(require rnrs/arithmetic/bitwise-6)
-(require rnrs/arithmetic/fixnums-6)
-(require rnrs/base-6)
-
-(define i2pi
-  (* 2.0 pi +1.0i))
 
 (define (fft a)
   (fft-in-place (bit-reverse-copy a) i2pi))
