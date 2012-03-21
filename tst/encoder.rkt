@@ -16,4 +16,4 @@
    (check-equal? (sanitize-samples (vector 1 2 3 4 5))
                  (vector 1 2 3 4 5))
    (check-equal? (sanitize-samples (vector 153.99+5e-10i 2 3 -343.342+234.342i 5))
-                 (vector 154 2 3 -343 5)))
+                 (vector 154 2 3 0 5)))

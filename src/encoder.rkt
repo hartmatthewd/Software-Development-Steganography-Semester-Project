@@ -1,3 +1,5 @@
+(load "src/requirements.rkt")
+(load "src/constants.rkt")
 (load "src/fileio.rkt")
 (load "src/util.rkt")
 (load "src/phase-coder.rkt")
@@ -63,4 +65,4 @@
 ;;; samples - the vector of samples to sanatize
 
 (define (sanitize-samples samples)
-    (vector-map! (lambda (x) (exact (round (real-part x)))) samples))
+    (vector-map! (lambda (x) (max 0 (min 65535 (exact (round (real-part x)))))) samples))

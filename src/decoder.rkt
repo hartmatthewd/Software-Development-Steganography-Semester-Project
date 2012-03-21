@@ -1,3 +1,5 @@
+(load "src/requirements.rkt")
+(load "src/constants.rkt")
 (load "src/fileio.rkt")
 (load "src/util.rkt")
 (load "src/phase-coder.rkt")
