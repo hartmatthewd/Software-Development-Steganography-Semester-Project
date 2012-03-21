@@ -264,9 +264,9 @@
                                channel))
           (get-first-byte (if (equal? (wavfile-endianess wav) 'little)
                               (lambda (sample) (modulo sample 256))
-                              (lambda (sample) (floor (/ sample 256)))))
+                              (lambda (sample) (modulo (div sample 256) 256))))
           (get-second-byte (if (equal? (wavfile-endianess wav) 'little)
-                               (lambda (sample) (floor (/ sample 256)))
+                               (lambda (sample) (modulo (div sample 256) 256))
                                (lambda (sample) (modulo sample 256)))))
           (do [(sample 0 (+ sample 1))
                (byte (+ (wavfile-chunkstart wav) (* (/ (wavfile-bitspersample wav) 8) channel)) (+ byte (wavfile-blockalign wav)))]

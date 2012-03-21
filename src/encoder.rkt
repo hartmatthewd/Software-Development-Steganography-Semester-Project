@@ -1,7 +1,6 @@
-(define samples-per-fft 1024)
-(define duplicate-encoding-each-channel #f)
-(define shift (/ pi 2))
-
+(load "src/fileio.rkt")
+(load "src/util.rkt")
+(load "src/phase-coder.rkt")
 
 ;;; Given a payload, a carrier file, and an output file, encode the payload into the carrier and write
 ;;; it to the output file
@@ -31,35 +30,29 @@
     (let* [(samples (vector-ref (wavfile-samples wav) 0))
            (i (get-next-sample-index samples))
            (frequencies (fft (vector-copy samples i (+ i samples-per-fft))))]
-          ;;; some junk here
+          (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies))
           (vector-copy! samples i (sanitize-samples (fft-inverse frequencies)))))
+
+
+;;; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,
+;;;; encode the bit into the frequency at the given index
+
+(define (encode-bit-into-frequency frequencies bit i)
+    (let [(val (get-shifted-value (vector-ref frequencies i) bit))]
+         (vector-set! frequencies i val)
+         (vector-set! frequencies (- (vector-length frequencies) i) val)))
 
 
 ;;; Sanatize the frequency vactor to ensure that each sample is an exact integer
 ;;; (round off error in the fft can make them slightly off)
 
-(define (sanitize-samples frequencies)
+(define (sanitize-samples samples)
     (do [(i 0 (+ i 1))]
-        [(= i (vector-length frequencies)) frequencies]
-        (vector-set! frequencies i (exact (round (real-part (vector-ref frequencies i)))))))
-
-
-;;; Returns the next index of the samples to encode to
-
-(define (get-next-sample-index samples)
-    (modulo (exact (floor (* (random) (vector-length samples)))) samples-per-fft))
-
-
-;;; Given a complex number (representing a sample in the frequency domain) and a bit to encode,
-;;; return a new sample with the bit encoded
-
-(define (get-shifted-value orig bit)
-    (make-polar (magnitude orig) (get-shift bit)))
-
-
-;;; Given a bit, return the amount to shift the phase
-
-(define (get-shift bit)
-    (if (= bit 0)
-        -shift
-        shift))
+        [(= i (vector-length samples)) samples]
+;        (begin
+;        (display (vector-ref samples i)) (newline)
+;        (display (exact (round (real-part (vector-ref samples i)))))
+;        (newline)(display "---------------------")(newline)(newline)
+        (vector-set! samples i (exact (round (real-part (vector-ref samples i)))))
+;        )
+        ))
