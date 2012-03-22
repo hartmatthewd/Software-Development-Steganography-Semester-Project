@@ -14,8 +14,7 @@
 (define (encode-payload-into-carrier payload carrier output)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (wav (file->wavfile carrier))]
-         (do [(p 0 (+ p 1))]
-             [(= p (bytes-length payload-bytes))]
+         (for [(p (bytes-length payload-bytes))]
              (encode-byte-into-wavfile (bytes-ref payload-bytes p) wav))
          (wavfile->file wav output)))
 
@@ -27,8 +26,7 @@
 
 (define (encode-byte-into-wavfile byte wav)
     (let [(bits (get-bits-from-byte byte))]
-         (do [(i 0 (+ i 1))]
-             [(= i (vector-length bits))]
+         (for [(i (vector-length bits))]
              (encode-bit-into-wavfile (vector-ref bits i) wav))))
 
 

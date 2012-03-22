@@ -23,8 +23,7 @@
 (define (decode-payload-from-wav wav)
     (let [(bytes (make-bytes num-of-bytes-to-decode))
           (bits (make-vector 8))]
-         (do [(i 0 (add1 i))]
-             [(= i (bytes-length bytes))]
+         (for [(i (bytes-length bytes))]
              (vector-map! (lambda (b) (decode-next-bit wav)) bits)
              (bytes-set! bytes i (get-byte-from-bit-vector bits)))
          bytes))

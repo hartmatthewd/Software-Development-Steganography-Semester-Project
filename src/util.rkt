@@ -66,26 +66,10 @@
 ;                                (func (get-index-with-max-mag i n) (add1 n)))))]
 ;             (func 1 0)))
 
-
 ;;;;;;;;;;;;;;;;;;
-;;; Returns a 2 byte representation of the given value in little endian notation
-(define (get-u16l value)
-   (values (mod value 256) (mod (div value 256) 256)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Returns a 2 byte representation of the given value in big endian notation
-(define (get-u16b value)
-   (values (mod (div value 256) 256) (mod value 256)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Returns the value of the given 2 bytes as if they were in little endian notation
-(define (get-value-16l v1 v2)
-    (+ v1 (* 256 v2)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Returns the value of the given 2 bytes as if they were in big endian notation
-(define (get-value-16b v1 v2)
-    (+ (* 256 v1) v2))
+;;; Returns true if the given wavfile bytes are big endian, false otherwise
+(define (is-big-endian? wav)
+    (eq? (wavfile-endianess wav) 'big))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Extracted from: /course/cs4500wc/Examples/FFT/fft.sls
