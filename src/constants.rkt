@@ -9,8 +9,6 @@
 
 (define i2pi (* 2.0 pi +1.0i))
 
-(define current-samples-index 0)
-
 ;;; The amount to shift when encoding a 0
 (define zero-shift (- 0 (/ pi 2)))
 

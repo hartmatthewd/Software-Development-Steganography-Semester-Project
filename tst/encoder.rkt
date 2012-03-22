@@ -15,5 +15,5 @@
 (define (sanitize-samples-test)
    (check-equal? (sanitize-samples (vector 1 2 3 4 5))
                  (vector 1 2 3 4 5))
-   (check-equal? (sanitize-samples (vector 153.99+5e-10i 2 3 -343.342+234.342i 5))
-                 (vector 154 2 3 0 5)))
+   (check-equal? (sanitize-samples (vector 153.99+5e-10i 50000 -50000 -343.342+234.342i 5))
+                 (vector 154 32767 -32768 -343 5)))

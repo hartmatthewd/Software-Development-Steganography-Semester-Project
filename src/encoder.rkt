@@ -60,7 +60,7 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Sanatize the frequency vactor to ensure that each sample is an exact integer
 ;;; (round off error in the fft can make them slightly off)
-;;; samples - the vector of samples to sanatize
+;;; samples - the vector of samples to sanitize
 
 (define (sanitize-samples samples)
-    (vector-map! (lambda (x) (max 0 (min 65535 (exact (round (real-part x)))))) samples))
+    (vector-map! (lambda (x) (min 32767 (max -32768 (exact (round (real-part x)))))) samples))

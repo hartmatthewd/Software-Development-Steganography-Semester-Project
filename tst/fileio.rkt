@@ -15,6 +15,7 @@
 
 (define (test-file-writer-reader)
     (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 0 -44)
+    (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 1 13533)
     (wavfile->file sample-wavfile "/tmp/_test")
     (let [(w (file->wavfile "/tmp/_test"))]
          (check-equal? (wavfile-endianess sample-wavfile) (wavfile-endianess w))
@@ -27,7 +28,8 @@
          (check-equal? (wavfile-chunkstart sample-wavfile) (wavfile-chunkstart w))
          (check-equal? (wavfile-chunksize sample-wavfile) (wavfile-chunksize w))
          (check-equal? (wavfile-samples sample-wavfile) (wavfile-samples w)))
-    (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 0 0))
+    (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 0 0)
+    (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 1 0))
 
 (define (test-is-mp3?)
    (check-false (is-mp3? "testwav.wav"))

@@ -42,6 +42,8 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns the next index of the samples to encode to
 
+(define current-samples-index 0)
+
 (define (get-next-sample-index)
     (set! current-samples-index (+ current-samples-index samples-per-fft))
     current-samples-index)
