@@ -20,19 +20,26 @@
 ;;; wav - the wavfile where to find the hidden message
 
 (define (decode-payload-from-wav wav)
-    (let [(bytes (make-bytes (div (div (vector-length (vector-ref (wavfile-samples wav) 0)) samples-per-fft) 8)))
-          (bits (make-vector 8))]
+    (let [(bytes (make-bytes (decode-next-byte wav)))]
          (for [(i (bytes-length bytes))]
-             (vector-map! (lambda (b) (decode-next-bit wav)) bits)
-             (bytes-set! bytes i (get-byte-from-bit-vector bits)))
+             (bytes-set! bytes i (decode-next-byte wav)))
          bytes))
 
 ;;;;;;;;;;;;;;;;;;
-;;; decode and return the next bit from the given wavfile
-;;; wav - the wavfile where to find the next bit
+;;; wav the wavfile where to decode the next byte from
 
-(define (decode-next-bit wav)
-    (let* [(samples (vector-ref (wavfile-samples wav) 0))
+(define (decode-next-byte wav)
+    (let [(bits (make-vector 8))]
+         (vector-map! (lambda (b) (decode-next-bit wav 0)) bits)
+         (get-byte-from-bit-vector bits)))
+
+;;;;;;;;;;;;;;;;;;
+;;; decode and return the next bit from the given wavfile channel
+;;; wav - the wavfile where to find the next bit
+;;; channel - the index of a channel in the wavfile
+
+(define (decode-next-bit wav channel)
+    (let* [(samples (vector-ref (wavfile-samples wav) channel))
            (i (get-next-sample-index))
            (frequencies (fft (vector-copy samples i (+ i samples-per-fft))))]
           (get-bit-from-frequency (vector-ref frequencies (get-fundamental-frequency frequencies)))))

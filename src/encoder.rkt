@@ -15,6 +15,7 @@
     (intialize)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (wav (file->wavfile carrier))]
+         (encode-byte-into-wavfile (bytes-length payload-bytes) wav)
          (for [(p (bytes-length payload-bytes))]
              (encode-byte-into-wavfile (bytes-ref payload-bytes p) wav))
          (wavfile->file wav output))
@@ -28,23 +29,23 @@
 
 (define (encode-byte-into-wavfile byte wav)
     (let [(bits (get-bits-from-byte byte))]
-         (for [(i (vector-length bits))]
-             (encode-bit-into-wavfile (vector-ref bits i) wav))))
-
+         (vector-map (lambda (b) (encode-bit-into-wavfile b wav)) bits)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a bit and a wavfile, encode the bit into the wavfile
 ;;; bit - the bit to encode
 ;;; wav - the wavfile to encode the bit into
-
 (define (encode-bit-into-wavfile bit wav)
-    ;;; For now encodes only in first channel
-    (let* [(samples (vector-ref (wavfile-samples wav) 0))
-           (i (get-next-sample-index))
-           (frequencies (fft (vector-copy samples i (+ i samples-per-fft))))]
-          (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies))
-          (vector-copy! samples i (sanitize-samples (fft-inverse frequencies)))))
+    (encode-bit-into-wavfile-on-channel-at-sample bit wav 0 (get-next-sample-index)))
 
+;;;;;;;;;;;;;;;;;;
+;;; Given a bit to encode, a wavfile, a channel index in the wavfile, and a sample index
+;;; in the channel, encode the give bit into the channel of the wavfile at the given sample
+(define (encode-bit-into-wavfile-on-channel-at-sample bit wav channel sample)
+    (let* [(samples (vector-ref (wavfile-samples wav) channel))
+           (frequencies (fft (vector-copy samples sample (+ sample samples-per-fft))))]
+          (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies))
+          (vector-copy! samples sample (sanitize-samples (fft-inverse frequencies)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,
