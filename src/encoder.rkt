@@ -29,20 +29,15 @@
 
 (define (encode-byte-into-wavfile byte wav)
     (let [(bits (get-bits-from-byte byte))]
-         (vector-map (lambda (b) (encode-bit-into-wavfile b wav)) bits)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Given a bit and a wavfile, encode the bit into the wavfile
-;;; bit - the bit to encode
-;;; wav - the wavfile to encode the bit into
-(define (encode-bit-into-wavfile bit wav)
-    (encode-bit-into-wavfile-on-channel-at-sample bit wav 0 (get-next-sample-index)))
+         (for [(i (vector-length bits))]
+              (encode-bit-into-wavfile (vector-ref bits i) wav (mod i (wavfile-channels wav))))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a bit to encode, a wavfile, a channel index in the wavfile, and a sample index
 ;;; in the channel, encode the give bit into the channel of the wavfile at the given sample
-(define (encode-bit-into-wavfile-on-channel-at-sample bit wav channel sample)
-    (let* [(samples (vector-ref (wavfile-samples wav) channel))
+(define (encode-bit-into-wavfile bit wav channel)
+    (let* [(sample (get-next-sample-index channel))
+           (samples (vector-ref (wavfile-samples wav) channel))
            (frequencies (fft (vector-copy samples sample (+ sample samples-per-fft))))]
           (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies))
           (vector-copy! samples sample (sanitize-samples (fft-inverse frequencies)))))

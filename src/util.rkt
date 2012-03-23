@@ -40,8 +40,9 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Initialize the system
+(define current-samples-index 0)
 (define (intialize)
-    (set! current-samples-index 0))
+    (set! current-samples-index (- 0 samples-per-fft)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Finalize the system
@@ -50,12 +51,10 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns the next index of the samples to encode to
-(define current-samples-index 0)
-(define (get-next-sample-index)
-    (set! current-samples-index (+ current-samples-index samples-per-fft))
+(define (get-next-sample-index channel)
+    (when (= channel 0)
+          (set! current-samples-index (+ current-samples-index samples-per-fft)))
     current-samples-index)
-;;    (mod (exact (floor (* (random) (vector-length samples)))) samples-per-fft))
-
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of frequencies in the frequency domain, find the fundamental frequency

@@ -30,7 +30,8 @@
 
 (define (decode-next-byte wav)
     (let [(bits (make-vector 8))]
-         (vector-map! (lambda (b) (decode-next-bit wav 0)) bits)
+         (for [(i (vector-length bits))]
+              (vector-set! bits i (decode-next-bit wav (mod i (wavfile-channels wav)))))
          (get-byte-from-bit-vector bits)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -40,6 +41,6 @@
 
 (define (decode-next-bit wav channel)
     (let* [(samples (vector-ref (wavfile-samples wav) channel))
-           (i (get-next-sample-index))
+           (i (get-next-sample-index channel))
            (frequencies (fft (vector-copy samples i (+ i samples-per-fft))))]
           (get-bit-from-frequency (vector-ref frequencies (get-fundamental-frequency frequencies)))))
