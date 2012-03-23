@@ -13,15 +13,11 @@
     (write-bytestring-to-file (decode-payload-from-wav (file->wavfile carrier)) output))
 
 ;;;;;;;;;;;;;;;;;;
-;;; THIS WILL NEED TO BE GENERATED DYNAMICALLY SOMEHOW
-(define num-of-bytes-to-decode 4)
-
-;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given wav and return it as a bytestring
 ;;; wav - the wavfile where to find the hidden message
 
 (define (decode-payload-from-wav wav)
-    (let [(bytes (make-bytes num-of-bytes-to-decode))
+    (let [(bytes (make-bytes (div (div (vector-length (vector-ref (wavfile-samples wav) 0)) samples-per-fft) 8)))
           (bits (make-vector 8))]
          (for [(i (bytes-length bytes))]
              (vector-map! (lambda (b) (decode-next-bit wav)) bits)
