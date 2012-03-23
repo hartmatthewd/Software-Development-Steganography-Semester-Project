@@ -10,7 +10,10 @@
 ;;; output - the file to output the hidden message into
 
 (define (decode-payload-from-carrier carrier output)
-    (write-bytestring-to-file (decode-payload-from-wav (file->wavfile carrier)) output))
+    (intialize)
+    (write-bytestring-to-file (decode-payload-from-wav (file->wavfile carrier)) 
+                              output)
+    (finalize))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given wav and return it as a bytestring

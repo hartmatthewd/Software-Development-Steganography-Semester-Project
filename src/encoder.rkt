@@ -12,11 +12,13 @@
 ;;; output - the name of the file which to output the encoded .wav or .mp3 to
 
 (define (encode-payload-into-carrier payload carrier output)
+    (intialize)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (wav (file->wavfile carrier))]
          (for [(p (bytes-length payload-bytes))]
              (encode-byte-into-wavfile (bytes-ref payload-bytes p) wav))
-         (wavfile->file wav output)))
+         (wavfile->file wav output))
+    (finalize))
 
 
 ;;;;;;;;;;;;;;;;;;

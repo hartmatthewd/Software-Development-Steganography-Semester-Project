@@ -11,10 +11,11 @@
     (check-equal? (get-shift 1) one-shift))
 
 (define (get-shifted-frequency-test)
-    (check-equal? (angle (get-shifted-frequency 123.456+123i 0)) zero-shift)
-    (check-equal? (angle (get-shifted-frequency 6345.5345+534.345i 0)) zero-shift)
-    (check-equal? (angle (get-shifted-frequency 123.456+123i 1)) one-shift)
-    (check-equal? (angle (get-shifted-frequency 6345.5345+534.345i 1)) one-shift))
+    (display "Update this when we fix the phase shift")
+    (check-equal? (angle (get-shifted-frequency 123.456+123i 0)) (inexact zero-shift))
+    (check-equal? (angle (get-shifted-frequency 6345.5345+534.345i 0)) (inexact zero-shift))
+    (check-equal? (angle (get-shifted-frequency 123.456+123i 1)) (inexact one-shift))
+    (check-equal? (angle (get-shifted-frequency 6345.5345+534.345i 1)) (inexact one-shift)))
 
 (define (get-bit-from-frequency-test)
     (check-equal? (get-bit-from-frequency (get-shifted-frequency 123.456+123i 0)) 0)

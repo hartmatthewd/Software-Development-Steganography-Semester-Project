@@ -6,15 +6,19 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; A holder for all the data needed to recreate the wav file
-(struct wavfile (endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize samples))
+(struct wavfile (is-wav endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize samples))
 
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Return a wavfile representation of the given file
 
 (define (file->wavfile file)
-    (bytes->wavfile (read-file-into-bytestring (ensure-is-wav file))))
-
+    (let* [(is-wav (is-wav? file))
+           (do-conversion (lambda (f) (bytes->wavfile (read-file-into-bytestring f) is-wav)))]
+          (if is-wav
+              (do-conversion file)
+              (begin (mp3->wav file tmp-file)
+                     (do-conversion tmp-file)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Writes the given wavfile to the given file
@@ -23,7 +27,10 @@
     (let ((bytes (make-bytes (+ (wavfile-chunkstart wav) (wavfile-chunksize wav)))))
          (write-wavfile-header-to-bytes wav bytes)
          (write-wavfile-to-bytes wav bytes)
-         (write-bytestring-to-file bytes file)))
+         (write-bytestring-to-file bytes tmp-file))
+    (if (wavfile-is-wav wav)
+        (copy-file tmp-file file #t)
+        (wav->mp3 tmp-file file)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;                                         
@@ -51,26 +58,6 @@
 ;;;;;;;;     MP3 and WAV
 ;;;;;;;;					
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;
-;;; If the given file is a wav file, return it, else convert it to wav and return the converted file
-
-(define (ensure-is-wav file)
-    (if (is-wav? file)
-        file
-        (let ((tmpfile "/tmp/_temp.wav"))
-             (mp3->wav file tmpfile)
-                    tmpfile)))
-
-;;;;;;;;;;;;;;;;;;
-;;; If the given file is a mp3 file, return it, else convert it to mp3 and return the converted file
-
-(define (ensure-is-mp3 file)
-    (if (is-mp3? file)
-        file
-        (let ((tmpfile "/tmp/_temp.mp3"))
-             (wav->mp3 file tmpfile)
-             tmpfile)))
 
 ;;;;;;;;;;;;;;;;;;
 ;Given a file, determine if the file represents a .wav file
@@ -206,10 +193,10 @@
 ;;; Given a bytestring, create a wavfile struct
 ;;; bytes - the bytestring to convert to a wavfile
 
-(define (bytes->wavfile bytes)
+(define (bytes->wavfile bytes is-wav)
    (let ((wav (call-with-values (lambda () (parse-wave-header bytes))
                                 (lambda (e af c sr by ba bps s cs)
-                                        (wavfile e af c sr by ba (/ bps 8) s (- cs s) (make-vector c))))))
+                                        (wavfile is-wav e af c sr by ba (/ bps 8) s (- cs s) (make-vector c))))))
         (set-wavfile-samples bytes wav)
         wav))
 

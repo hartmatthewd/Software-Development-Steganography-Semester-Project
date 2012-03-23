@@ -38,12 +38,19 @@
                                              (recurse (/ (- v j) 256) (add1 i)))))))
             (recurse val 0)))
 
+;;;;;;;;;;;;;;;;;;
+;;; Initialize the system
+(define (intialize)
+    (set! current-samples-index 0))
+
+;;;;;;;;;;;;;;;;;;
+;;; Finalize the system
+(define (finalize)
+    (void))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns the next index of the samples to encode to
-
 (define current-samples-index 0)
-
 (define (get-next-sample-index)
     (set! current-samples-index (+ current-samples-index samples-per-fft))
     current-samples-index)

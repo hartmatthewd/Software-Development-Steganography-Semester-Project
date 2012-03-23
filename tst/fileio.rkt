@@ -11,7 +11,7 @@
    (test-file-writer-reader))
 
 ;; 1 second of stereo audio, all samples are 0
-(define sample-wavfile (wavfile 'little 1 2 44100 176400 4 2 44 176400 (vector (make-vector 44100) (make-vector 44100))))
+(define sample-wavfile (wavfile #t 'little 1 2 44100 176400 4 2 44 176400 (vector (make-vector 44100) (make-vector 44100))))
 
 (define (test-file-writer-reader)
     (vector-set! (vector-ref (wavfile-samples sample-wavfile) 0) 0 -44)
