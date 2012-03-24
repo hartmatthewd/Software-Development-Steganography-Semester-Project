@@ -19,15 +19,17 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a wavfile, decode the payload size
 
-(define (get-payload-size-from-wavfile wav)
-    (integer-bytes->integer (bytes (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav)) #f 'little))
+(define (decode-payload-size-from-wavfile wav)
+    (integer-bytes->integer (bytes (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav)) 
+                            #f 
+                            'little))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given wav and return it as a bytestring
 ;;; wav - the wavfile where to find the hidden message
 
 (define (decode-payload-from-wav wav)
-    (let [(bytes (make-bytes (get-payload-size-from-wavfile wav)))]
+    (let [(bytes (make-bytes (decode-payload-size-from-wavfile wav)))]
          (for [(i (bytes-length bytes))]
              (bytes-set! bytes i (decode-next-byte wav)))
          bytes))

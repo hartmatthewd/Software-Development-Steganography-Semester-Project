@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
 ;;; bits - the vector of bits of which to make a byte out of
