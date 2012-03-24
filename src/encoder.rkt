@@ -16,6 +16,7 @@
     (intialize)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (wav (file->wavfile carrier))]
+         (ensure-wav-large-enough? wav (bytes-length payload-bytes))
          (encode-payload-size-into-wavfile payload-bytes wav)
          (encode-bytes-into-wavfile payload-bytes wav)
          (wavfile->file wav output))

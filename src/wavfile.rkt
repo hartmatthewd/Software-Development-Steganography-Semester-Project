@@ -13,9 +13,17 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Common method to create a wavfile
 (define (create-wavfile is-wav e af c sr by ba bps s cs)
-    (let [(wav (wavfile is-wav -1 (- c 1) e af c sr by ba (/ bps 8) s (- cs s) (make-vector c)))]
+    (let [(wav (wavfile is-wav (- 0 samples-per-fft) (- c 1) e af c sr by ba (/ bps 8) s (- cs s) (make-vector c)))]
          (intialize-wavfile-samples wav)
          wav))
+
+;;;;;;;;;;;;;;;;;;
+;;; Returns whether or not the wav is large enough to hold the payload
+
+(define (ensure-wav-large-enough? wav size)
+    (let [(maxsize (div (* (wavfile-channels wav) (div (vector-length (vector-ref (wavfile-samples wav) 0)) samples-per-fft)) 8))]
+         (when (not (<= size maxsize))
+               (error 'Failure (format "Payload is too large for the given audio carrier. Size: ~a bytes | Max Size: ~a bytes" size maxsize)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a wavfile, intialize its samples vector to contain multiple vectors
