@@ -1,5 +1,3 @@
-(load "src/phase-coder.rkt")
-
 (define (run-phase-coder-tests)
    (display "tst/phase-coder.rkt") (newline)
    (get-shift-test)

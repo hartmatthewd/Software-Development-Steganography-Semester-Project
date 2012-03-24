@@ -1,5 +1,6 @@
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
+(load "src/wavfile.rkt")
 (load "src/fileio.rkt")
 (load "src/util.rkt")
 (load "src/phase-coder.rkt")
@@ -15,12 +16,23 @@
     (intialize)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (wav (file->wavfile carrier))]
-         (encode-byte-into-wavfile (bytes-length payload-bytes) wav)
-         (for [(p (bytes-length payload-bytes))]
-             (encode-byte-into-wavfile (bytes-ref payload-bytes p) wav))
+         (encode-payload-size-into-wavfile payload-bytes wav)
+         (encode-bytes-into-wavfile payload-bytes wav)
          (wavfile->file wav output))
     (finalize))
 
+;;;;;;;;;;;;;;;;;;
+;;; Given a wavfile and a payload, encode the payload size into the wavfile 
+
+(define (encode-payload-size-into-wavfile payload wav)
+    (encode-bytes-into-wavfile (integer->integer-bytes (bytes-length payload) 4 #f 'little) wav))
+
+;;;;;;;;;;;;;;;;;;
+;;; Given a wavfile and a payload, encode the payload into the wavfile 
+
+(define (encode-bytes-into-wavfile payload wav)
+    (for [(p (bytes-length payload))]
+         (encode-byte-into-wavfile (bytes-ref payload p) wav)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a byte and a wavfile, encode the byte into the wavfile samples
@@ -28,19 +40,20 @@
 ;;; wav - the wavfile to encode the byte into
 
 (define (encode-byte-into-wavfile byte wav)
-    (let [(bits (get-bits-from-byte byte))]
-         (for [(i (vector-length bits))]
-              (encode-bit-into-wavfile (vector-ref bits i) wav (mod i (wavfile-channels wav))))))
+    (vector-map (lambda (b) (encode-bit-into-wavfile b wav)) (get-bits-from-byte byte)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a bit to encode, a wavfile, a channel index in the wavfile, and a sample index
 ;;; in the channel, encode the give bit into the channel of the wavfile at the given sample
-(define (encode-bit-into-wavfile bit wav channel)
-    (let* [(sample (get-next-sample-index channel))
-           (samples (vector-ref (wavfile-samples wav) channel))
-           (frequencies (fft (vector-copy samples sample (+ sample samples-per-fft))))]
-          (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies))
-          (vector-copy! samples sample (sanitize-samples (fft-inverse frequencies)))))
+(define (encode-bit-into-wavfile bit wav)
+    (let* [(frequencies (fft (get-next-encode-samples wav)))]
+          (encode-bit-into-frequencies bit frequencies)
+          (set-next-encode-samples wav (sanitize-samples (fft-inverse frequencies)))))
+
+;;;;;;;;;;;;;;;;;;
+;;; Given a vector or frequencies in the frequency domain, encode the given bit
+(define (encode-bit-into-frequencies bit frequencies)
+    (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,

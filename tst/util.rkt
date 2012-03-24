@@ -1,5 +1,3 @@
-(load "src/util.rkt")
-
 (define (run-util-tests)
    (display "tst/util.rkt") (newline)
    (get-byte-from-bit-vector-test)

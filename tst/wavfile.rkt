@@ -1,0 +1,46 @@
+(define (run-wavfile-tests)
+   (display "tst/wavfile.rkt") (newline)
+   (test-write-wavfile-bytes-for-channel)
+   (test-set-wavfile-samples-for-channel)
+;   (test-write-wavfile-to-bytes)
+;   (test-set-wavfile-samples)
+)
+
+(define (test-write-wavfile-bytes-for-channel)
+   (letrec* [(sample-wavfile (create-test-wavfile))
+             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+             (control (bytes-append (make-bytes 44 1)
+                                    (make-bytes (wavfile-chunksize sample-wavfile) 0)))]
+           (write-wavfile-bytes-for-channel bytes sample-wavfile 0)
+           (check-false (bytes=? bytes control))
+           (write-wavfile-bytes-for-channel bytes sample-wavfile 1)
+           (check-true (bytes=? bytes control))))
+
+(define (test-write-wavfile-to-bytes)
+   (letrec* [(sample-wavfile (create-test-wavfile))
+             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+             (control (bytes-append (make-bytes 44 1)
+                                    (make-bytes (wavfile-chunksize sample-wavfile) 0)))]
+           (write-wavfile-to-bytes sample-wavfile bytes)
+           (check-true (bytes=? bytes control))))
+
+(define (test-set-wavfile-samples-for-channel)
+   (letrec* [(sample-wavfile (create-test-wavfile))
+             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+             (left (make-vector 44100 257))
+             (right (make-vector 44100 257))]
+           (set-wavfile-samples-for-channel bytes sample-wavfile 0)
+           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
+           (check-not-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))
+           (set-wavfile-samples-for-channel bytes sample-wavfile 1)
+           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
+           (check-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))))
+
+(define (test-set-wavfile-samples)
+   (letrec* [(sample-wavfile (create-test-wavfile))
+             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
+             (left (make-vector 44100 257))
+             (right (make-vector 44100 257))]
+           (set-wavfile-samples bytes sample-wavfile)
+           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
+           (check-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))))

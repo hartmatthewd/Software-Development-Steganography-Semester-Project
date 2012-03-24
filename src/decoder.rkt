@@ -1,5 +1,6 @@
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
+(load "src/wavfile.rkt")
 (load "src/fileio.rkt")
 (load "src/util.rkt")
 (load "src/phase-coder.rkt")
@@ -16,11 +17,17 @@
     (finalize))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Given a wavfile, decode the payload size
+
+(define (get-payload-size-from-wavfile wav)
+    (integer-bytes->integer (bytes (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav)) #f 'little))
+
+;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given wav and return it as a bytestring
 ;;; wav - the wavfile where to find the hidden message
 
 (define (decode-payload-from-wav wav)
-    (let [(bytes (make-bytes (decode-next-byte wav)))]
+    (let [(bytes (make-bytes (get-payload-size-from-wavfile wav)))]
          (for [(i (bytes-length bytes))]
              (bytes-set! bytes i (decode-next-byte wav)))
          bytes))
@@ -31,7 +38,7 @@
 (define (decode-next-byte wav)
     (let [(bits (make-vector 8))]
          (for [(i (vector-length bits))]
-              (vector-set! bits i (decode-next-bit wav (mod i (wavfile-channels wav)))))
+              (vector-set! bits i (decode-next-bit wav)))
          (get-byte-from-bit-vector bits)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -39,8 +46,6 @@
 ;;; wav - the wavfile where to find the next bit
 ;;; channel - the index of a channel in the wavfile
 
-(define (decode-next-bit wav channel)
-    (let* [(samples (vector-ref (wavfile-samples wav) channel))
-           (i (get-next-sample-index channel))
-           (frequencies (fft (vector-copy samples i (+ i samples-per-fft))))]
+(define (decode-next-bit wav)
+    (let* [(frequencies (fft (get-next-encode-samples wav)))]
           (get-bit-from-frequency (vector-ref frequencies (get-fundamental-frequency frequencies)))))

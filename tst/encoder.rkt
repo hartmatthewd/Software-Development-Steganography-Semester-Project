@@ -1,5 +1,3 @@
-(load "src/encoder.rkt")
-
 (define (run-encoder-tests)
    (display "tst/encoder.rkt") (newline)
    (sanitize-samples-test)
@@ -10,7 +8,13 @@
     (let [(t (vector 0 1 2 3 4 5 5 4 3 2 1))]
          (encode-bit-into-frequency t 0 1)
          (encode-bit-into-frequency t 1 2)
-         (check-equal? t (vector 0 (get-shifted-frequency 1 0) (get-shifted-frequency 2 1) 3 4 5 5 4 3 (get-shifted-frequency 2 1) (get-shifted-frequency 1 0)))))
+         (check-equal? t 
+                       (vector 0 
+                               (get-shifted-frequency 1 0) 
+                               (get-shifted-frequency 2 1) 
+                               3 4 5 5 4 3 
+                               (get-shifted-frequency 2 1) 
+                               (get-shifted-frequency 1 0)))))
 
 (define (sanitize-samples-test)
    (check-equal? (sanitize-samples (vector 1 2 3 4 5))

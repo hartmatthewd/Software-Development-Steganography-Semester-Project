@@ -8,7 +8,6 @@
     (let [(shift (get-shift bit))]
          (make-polar (magnitude frequency) shift)))
 ;    (let [(ang (- (mod (+ (angle frequency) pi (get-shift bit)) (* 2 pi)) pi))]
-;         (display frequency) (display "     ") (display (make-polar (magnitude frequency) ang))(newline)
 ;         (make-polar (magnitude frequency) ang)))
 
 

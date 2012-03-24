@@ -40,21 +40,13 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Initialize the system
-(define current-samples-index 0)
 (define (intialize)
-    (set! current-samples-index (- 0 samples-per-fft)))
+    (void))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Finalize the system
 (define (finalize)
     (void))
-
-;;;;;;;;;;;;;;;;;;
-;;; Returns the next index of the samples to encode to
-(define (get-next-sample-index channel)
-    (when (= channel 0)
-          (set! current-samples-index (+ current-samples-index samples-per-fft)))
-    current-samples-index)
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of frequencies in the frequency domain, find the fundamental frequency
