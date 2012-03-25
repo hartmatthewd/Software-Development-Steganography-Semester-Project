@@ -38,24 +38,6 @@
             (recurse val 0)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a vector of frequencies in the frequency domain, find the fundamental frequency
-;;; frequencies - the vector of frequencies of which to find the fundamental one
-
-(define (get-fundamental-frequency frequencies)
-    1)
-;     (letrec [(vector-mid (/ (vector-length frequencies) 2))
-;              (get-index-with-max-mag (lambda (a b)
-;                                   (if (< (magnitude (vector-ref frequencies a))
-;                                          (magnitude (vector-ref frequencies b)))
-;                                       a
-;                                       b)))
-;              (func (lambda (i n)
-;                            (if (= n vector-mid)
-;                                i
-;                                (func (get-index-with-max-mag i n) (add1 n)))))]
-;             (func 1 0)))
-
-;;;;;;;;;;;;;;;;;;
 ;;; Returns true if the given wavfile bytes are big endian, false otherwise
 (define (is-big-endian? wav)
     (eq? (wavfile-endianess wav) 'big))

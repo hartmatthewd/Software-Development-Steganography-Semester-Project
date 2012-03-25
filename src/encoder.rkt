@@ -53,7 +53,8 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector or frequencies in the frequency domain, encode the given bit
 (define (encode-bit-into-frequencies bit frequencies)
-    (encode-bit-into-frequency frequencies bit (get-fundamental-frequency frequencies)))
+    (encode-bit-into-frequency frequencies bit frequency-to-encode)
+    (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) frequency-to-encode)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,
@@ -63,9 +64,7 @@
 ;;; i - the index of the frequencies to encode the given bit into 
 
 (define (encode-bit-into-frequency frequencies bit i)
-    (let [(val (get-shifted-frequency (vector-ref frequencies i) bit))]
-         (vector-set! frequencies i val)
-         (vector-set! frequencies (- (vector-length frequencies) i) val)))
+    (vector-set! frequencies i (get-shifted-frequency (vector-ref frequencies i) bit)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Sanatize the frequency vactor to ensure that each sample is an exact integer

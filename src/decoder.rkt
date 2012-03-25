@@ -49,4 +49,4 @@
 
 (define (decode-next-bit wav)
     (let* [(frequencies (fft (get-next-samples wav)))]
-          (get-bit-from-frequency (vector-ref frequencies (get-fundamental-frequency frequencies)))))
+          (get-bit-from-frequency (vector-ref frequencies frequency-to-encode))))

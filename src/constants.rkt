@@ -18,5 +18,9 @@
 ;;; The amount of error we allow for round off error in determining the phase of a frequency
 (define round-off-error 0.4)
 
+;;; The index (base 0) of the frequency to encode each bit on when sorted by magnitude
+;;; For example: the fundamental frequency would be 0, the first overtone would be 1
+(define frequency-to-encode 1)
+
 (define tmpsrc "/tmp/stegosrc")
 (define tmpdest "/tmp/stegodest")
