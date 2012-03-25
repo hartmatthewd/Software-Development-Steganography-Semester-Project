@@ -25,6 +25,6 @@
 ;;; frequency - the frequency to pull an encoded bit out of
 
 (define (get-bit-from-frequency frequency)
-   (if (< (abs (angle frequency)) (+ zero-shift 1e-2))
+   (if (< (abs (angle frequency)) (+ zero-shift round-off-error))
        0
        1))

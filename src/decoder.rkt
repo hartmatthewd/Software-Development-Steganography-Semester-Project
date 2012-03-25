@@ -11,18 +11,7 @@
 ;;; output - the file to output the hidden message into
 
 (define (decode-payload-from-carrier carrier output)
-    (intialize)
-    (write-bytestring-to-file (decode-payload-from-wav (file->wavfile carrier)) 
-                              output)
-    (finalize))
-
-;;;;;;;;;;;;;;;;;;
-;;; Given a wavfile, decode the payload size
-
-(define (decode-payload-size-from-wavfile wav)
-    (integer-bytes->integer (bytes (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav) (decode-next-byte wav)) 
-                            #f 
-                            'little))
+    (write-bytestring-to-file (decode-payload-from-wav (file->wavfile-decoder carrier)) output))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given wav and return it as a bytestring
@@ -35,12 +24,22 @@
          bytes))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Given a wavfile, decode the payload size
+
+(define (decode-payload-size-from-wavfile wav)
+    (integer-bytes->integer (bytes (decode-next-byte wav) 
+                                   (decode-next-byte wav)
+                                   (decode-next-byte wav)
+                                   (decode-next-byte wav)) 
+                            #f 
+                            'little))
+
+;;;;;;;;;;;;;;;;;;
 ;;; wav the wavfile where to decode the next byte from
 
 (define (decode-next-byte wav)
     (let [(bits (make-vector 8))]
-         (for [(i (vector-length bits))]
-              (vector-set! bits i (decode-next-bit wav)))
+         (vector-map! (lambda (b) (decode-next-bit wav)) bits)
          (get-byte-from-bit-vector bits)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -49,5 +48,5 @@
 ;;; channel - the index of a channel in the wavfile
 
 (define (decode-next-bit wav)
-    (let* [(frequencies (fft (get-next-encode-samples wav)))]
+    (let* [(frequencies (fft (get-next-samples wav)))]
           (get-bit-from-frequency (vector-ref frequencies (get-fundamental-frequency frequencies)))))

@@ -38,16 +38,6 @@
             (recurse val 0)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Initialize the system
-(define (intialize)
-    (void))
-
-;;;;;;;;;;;;;;;;;;
-;;; Finalize the system
-(define (finalize)
-    (void))
-
-;;;;;;;;;;;;;;;;;;
 ;;; Given a vector of frequencies in the frequency domain, find the fundamental frequency
 ;;; frequencies - the vector of frequencies of which to find the fundamental one
 
