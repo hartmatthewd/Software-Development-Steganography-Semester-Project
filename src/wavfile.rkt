@@ -17,11 +17,18 @@
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;;;;;;;;;;;;;;;;;
+;;; When decoding, make sure there are enough bytes to pull out of the wavfile when creating the payload
+
+(define (validate-payload-size wav size)
+    (min size (get-wavfile-max-payload-size wav)))
+
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns whether or not the wav is large enough to hold the payload
 
 (define (ensure-wav-large-enough? wav size)
-    (let [(maxsize (div (div (div (wavfile-chunksize wav) (wavfile-bytespersample wav)) samples-per-fft) 8))]
+    (let [(maxsize (get-wavfile-max-payload-size wav))]
          (when (not (<= size maxsize))
                (error 'Failure (format "Payload is too large for the given audio carrier. Size: ~a bytes | Max Size: ~a bytes" size maxsize)))))
 
@@ -196,6 +203,12 @@
 ;;;;;;;;  Locals
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+(define (get-wavfile-max-payload-size wav)
+    (div (- (wavfile-chunksize wav) 
+            (* 8 4 (wavfile-bytespersample wav) samples-per-fft))
+         (* 8 (wavfile-bytespersample wav) samples-per-fft)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel in the given wav

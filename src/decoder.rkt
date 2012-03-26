@@ -27,12 +27,12 @@
 ;;; Given a wavfile, decode the payload size
 
 (define (decode-payload-size-from-wavfile wav)
-    (integer-bytes->integer (bytes (decode-next-byte wav) 
-                                   (decode-next-byte wav)
-                                   (decode-next-byte wav)
-                                   (decode-next-byte wav)) 
-                            #f 
-                            'little))
+    (validate-payload-size wav (integer-bytes->integer (bytes (decode-next-byte wav) 
+                                                              (decode-next-byte wav)
+                                                              (decode-next-byte wav)
+                                                              (decode-next-byte wav)) 
+                                                       #f 
+                                                       'little)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; wav the wavfile where to decode the next byte from
@@ -48,5 +48,5 @@
 ;;; channel - the index of a channel in the wavfile
 
 (define (decode-next-bit wav)
-    (let* [(frequencies (fft (get-next-samples wav)))]
-          (get-bit-from-frequency (vector-ref frequencies frequency-to-encode))))
+    (let [(frequencies (fft (get-next-samples wav)))]
+         (get-bit-from-frequency (vector-ref frequencies frequency-to-encode))))

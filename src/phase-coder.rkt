@@ -5,28 +5,22 @@
 ;;; bit - the bit to encode
 
 (define (get-shifted-frequency frequency bit)
-    (let [(shift (get-shift bit))]
-         (make-polar (magnitude frequency) shift)))
-;    (let [(ang (- (mod (+ (angle frequency) pi (get-shift bit)) (* 2 pi)) pi))]
-;         (display frequency)(display "            ")(display (make-polar (magnitude frequency) ang))(newline)
-;         (make-polar (magnitude frequency) ang)))
-;    frequency)
-
-
-;;;;;;;;;;;;;;;;;;
-;;; Given a bit, return the amount to shift the phase
-;;; bit - the bit to encode
-
-(define (get-shift bit)
     (if (= bit 0)
-        zero-shift
-        one-shift))
+        (make-polar (magnitude frequency) (+ (* phase-delta (round (- (/ (angle frequency) phase-delta) 0.5))) (/ phase-delta 2)))
+        (make-polar (magnitude frequency) (* phase-delta (round (/ (angle frequency) phase-delta))))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a frequency, return what bit is encoded in it
 ;;; frequency - the frequency to pull an encoded bit out of
 
 (define (get-bit-from-frequency frequency)
-   (if (< (abs (angle frequency)) (+ zero-shift round-off-error))
-       0
-       1))
+    (let [(test-same-angle (lambda (a b)
+                                   (or (< (abs (- a b)) round-off-error)
+                                       (< (abs (- b a)) round-off-error))))
+          (ang (angle frequency))]
+         (if (or (test-same-angle (abs ang) 0)
+                 (test-same-angle (abs ang) pi/2)
+                 (test-same-angle (abs ang) pi)
+                 (test-same-angle (abs ang) 3pi/2))
+             1
+             0)))
