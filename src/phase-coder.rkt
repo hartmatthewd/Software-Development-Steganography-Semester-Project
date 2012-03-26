@@ -14,13 +14,22 @@
 ;;; frequency - the frequency to pull an encoded bit out of
 
 (define (get-bit-from-frequency frequency)
-    (let [(test-same-angle (lambda (a b)
-                                   (or (< (abs (- a b)) round-off-error)
-                                       (< (abs (- b a)) round-off-error))))
-          (ang (angle frequency))]
-         (if (or (test-same-angle (abs ang) 0)
-                 (test-same-angle (abs ang) pi/2)
-                 (test-same-angle (abs ang) pi)
-                 (test-same-angle (abs ang) 3pi/2))
-             1
-             0)))
+    (if (angle-is-one? (abs (angle frequency))) 1 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;  Locals
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+(define (is-same-angle? a b)
+    (or (< (abs (- a b)) round-off-error) 
+        (< (abs (- b a)) round-off-error)))
+
+;;;;;;;;;;;;;;;;;;
+(define (angle-is-one? x)
+    (or (is-same-angle? x 0)
+        (is-same-angle? x pi/2)
+        (is-same-angle? x pi)
+        (is-same-angle? x 3pi/2)))
