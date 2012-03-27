@@ -1,9 +1,7 @@
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
-(load "src/wavfile.rkt")
-(load "src/fileio.rkt")
 (load "src/util.rkt")
-(load "src/phase-coder.rkt")
+(load "src/frequencycoder.rkt")
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a payload, a carrier file, and an output file, encode the payload into the carrier and write
@@ -14,47 +12,40 @@
 
 (define (encode-payload-into-carrier payload carrier output)
     (let [(payload-bytes (read-file-into-bytestring payload))
-          (wav (file->wavfile-encoder carrier output))]
-         (ensure-wav-large-enough? wav (bytes-length payload-bytes))
-         (encode-payload-size-into-wavfile payload-bytes wav)
-         (encode-bytes-into-wavfile payload-bytes wav)
-         (finalize-wavfile wav)))
+          (encoder (make-encoder carrier output))]
+         (ensure-destination-large-enough? encoder (bytes-length payload-bytes))
+         (encode-payload-size payload-bytes encoder)
+         (encode-bytes payload-bytes encoder)
+         (finalize-coder encoder)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a wavfile and a payload, encode the payload size into the wavfile 
+;;; Given a payload and a coder, encode the payload size into the coder
 
-(define (encode-payload-size-into-wavfile payload wav)
-    (encode-bytes-into-wavfile (integer->integer-bytes (bytes-length payload) 4 #f 'little) wav))
+(define (encode-payload-size payload encoder)
+    (encode-bytes (integer->integer-bytes (bytes-length payload) 4 #f 'little) encoder))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a wavfile and a payload, encode the payload into the wavfile 
+;;; Given a payload and a coder, encode the payload into the coder
 
-(define (encode-bytes-into-wavfile payload wav)
+(define (encode-bytes payload encoder)
     (for [(p (bytes-length payload))]
-         (encode-byte-into-wavfile (bytes-ref payload p) wav)))
+         (encode-byte (bytes-ref payload p) encoder)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a byte and a wavfile, encode the byte into the wavfile samples
+;;; Given a byte and a coder encode the byte into the coder at some frequency
 ;;; byte - the byte to encode
-;;; wav - the wavfile to encode the byte into
+;;; encoder - the coder to encode the byte into
 
-(define (encode-byte-into-wavfile byte wav)
-    (vector-map (lambda (b) (encode-bit-into-wavfile b wav)) (get-bits-from-byte byte)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Given a bit to encode, a wavfile, a channel index in the wavfile, and a sample index
-;;; in the channel, encode the give bit into the channel of the wavfile at the given sample
-(define (encode-bit-into-wavfile bit wav)
-    (let* [(samples (get-next-samples wav))
-           (frequencies (fft samples))]
-          (encode-bit-into-frequencies bit frequencies)
-          (vector-copy! samples 0 (sanitize-samples (fft-inverse frequencies)))))
+(define (encode-byte byte encoder)
+    (vector-map (lambda (b) (encode-bit b encoder)) (get-bits-from-byte byte)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a vector or frequencies in the frequency domain, encode the given bit
-(define (encode-bit-into-frequencies bit frequencies)
-    (encode-bit-into-frequency frequencies bit frequency-to-encode)
-    (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) frequency-to-encode)))
+;;; Given a bit to encode, and a coder, encode the give bit into the coder
+(define (encode-bit bit encoder)
+    (let [(encode-func (lambda (frequencies i)
+                               (encode-bit-into-frequency frequencies bit i)
+                               (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i))))]
+         (code-next-frequency encoder encode-func)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,
@@ -67,9 +58,12 @@
     (vector-set! frequencies i (get-shifted-frequency (vector-ref frequencies i) bit)))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Sanatize the frequency vactor to ensure that each sample is an exact integer
-;;; (round off error in the fft can make them slightly off)
-;;; samples - the vector of samples to sanitize
+;;; Given a complex number (representing a sample in the frequency domain) and a bit to encode,
+;;; return a new sample with the bit encoded
+;;; frequency - the frequency of which to encode the given bit into
+;;; bit - the bit to encode
 
-(define (sanitize-samples samples)
-    (vector-map! (lambda (x) (min 32767 (max -32768 (exact (round (real-part x)))))) samples))
+(define (get-shifted-frequency frequency bit)
+    (if (= bit 0)
+        (make-polar (magnitude frequency) (+ (* pi/2 (round (- (/ (angle frequency) pi/2) 0.5))) (/ pi/2 2)))
+        (make-polar (magnitude frequency) (* pi/2 (round (/ (angle frequency) pi/2))))))

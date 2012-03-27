@@ -1,3 +1,5 @@
+(load "src/fileio.rkt")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
 ;;;;;;;;     Wavfile
@@ -13,45 +15,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
-;;;;;;;;  Utils
-;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;
-;;; When decoding, make sure there are enough bytes to pull out of the wavfile when creating the payload
-
-(define (validate-payload-size wav size)
-    (min size (get-wavfile-max-payload-size wav)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Returns whether or not the wav is large enough to hold the payload
-
-(define (ensure-wav-large-enough? wav size)
-    (let [(maxsize (get-wavfile-max-payload-size wav))]
-         (when (not (<= size maxsize))
-               (error 'Failure (format "Payload is too large for the given audio carrier. Size: ~a bytes | Max Size: ~a bytes" size maxsize)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;
 ;;;;;;;;     Wavfile Creation and Finalization
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Return a wavfile representation of the given in file set to write to the given out file
-(define (file->wavfile-encoder src dest)
+(define (file->wavfile src dest)
     (if (is-wav? src)
-        (create-and-initialize-wavfile (open-file-input-port src) (open-file-output-port dest) null)
-        (begin (mp3->wav src tmpsrc)
-               (create-and-initialize-wavfile (open-file-input-port tmpsrc) (open-file-output-port tmpdest) dest))))
-
-;;;;;;;;;;;;;;;;;;
-(define (file->wavfile-decoder src)
-    (if (is-wav? src)
-        (create-and-initialize-wavfile (open-file-input-port src) null null)
-        (begin (mp3->wav src tmpsrc)
-               (create-and-initialize-wavfile (open-file-input-port tmpsrc) null null))))
+        (let [(out (if (null? dest) null (open-file-output-port dest)))]
+             (create-and-initialize-wavfile (open-file-input-port src) out null))
+        (let [(out (if (null? dest) null (open-file-output-port tmpdest)))]
+             (mp3->wav src tmpsrc)
+             (create-and-initialize-wavfile (open-file-input-port tmpsrc) out dest))))
 
 ;;;;;;;;;;;;;;;;;;
 (define (finalize-wavfile wav)
