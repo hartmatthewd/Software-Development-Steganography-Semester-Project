@@ -2,7 +2,7 @@
 (define lame-path "/course/cs4500wc/bin/lame --quiet -q 9 ")
 
 ;;; the number of samples to use for each fft
-(define samples-per-fft 512)
+(define samples-per-fft 256)
 
 (define frequency-components-to-encode (vector 2 3 4))
 

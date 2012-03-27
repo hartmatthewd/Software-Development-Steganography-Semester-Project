@@ -27,6 +27,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (finalize-coder coder)
+    (write-current-frequencies coder)
     (finalize-wavfile (coder-wavfile coder)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
