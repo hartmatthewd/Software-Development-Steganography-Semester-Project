@@ -3,6 +3,12 @@
 (load "src/util.rkt")
 (load "src/frequencycoder.rkt")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Encoder
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a payload, a carrier file, and an output file, encode the payload into the carrier and write
 ;;; it to the output file
@@ -56,6 +62,12 @@
 
 (define (encode-bit-into-frequency frequencies bit i)
     (vector-set! frequencies i (get-shifted-frequency (vector-ref frequencies i) bit)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Locals
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a complex number (representing a sample in the frequency domain) and a bit to encode,

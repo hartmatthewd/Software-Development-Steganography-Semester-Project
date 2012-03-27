@@ -3,6 +3,12 @@
 (load "src/util.rkt")
 (load "src/frequencycoder.rkt")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Decoder
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given carrier and stick it in the given output file
 ;;; carrier - the carrier where to find the hidden message
@@ -24,23 +30,28 @@
 ;;; Given a coder, decode the payload size
 
 (define (decode-payload-size decoder)
-    (validate-payload-size decoder (integer-bytes->integer (bytes (decode-next-byte decoder) 
-                                                                  (decode-next-byte decoder)
-                                                                  (decode-next-byte decoder)
-                                                                  (decode-next-byte decoder)) 
-                                                           #f 
-                                                           'little)))
+    (validate-payload-size decoder 
+                           (integer-bytes->integer (bytes (decode-next-byte decoder) 
+                                                          (decode-next-byte decoder)
+                                                          (decode-next-byte decoder)
+                                                          (decode-next-byte decoder)) 
+                                                   #f 
+                                                   'little)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a coder, decode the payload
 
 (define (decode-next-byte decoder)
-    (let [(bits (make-vector 8))]
-         (vector-map! (lambda (b) (code-next-frequency decoder 
-                                                       (lambda (frequencies i) 
-                                                               (get-bit-from-frequency (vector-ref frequencies i))))) 
-                      bits)
+    (let [(bits (make-vector 8))
+          (decode-func (lambda (frequencies i) (get-bit-from-frequency (vector-ref frequencies i))))]
+         (vector-map! (lambda (b) (code-next-frequency decoder decode-func)) bits)
          (get-byte-from-bit-vector bits)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Locals
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a frequency, return what bit is encoded in it

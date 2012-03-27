@@ -4,7 +4,7 @@
 ;;; the number of samples to use for each fft
 (define samples-per-fft 512)
 
-(define frequency-components-to-encode (vector 2))
+(define frequency-components-to-encode (vector 2 3 4))
 
 (define tmpsrc "/tmp/stegosrc")
 (define tmpdest "/tmp/stegodest")
