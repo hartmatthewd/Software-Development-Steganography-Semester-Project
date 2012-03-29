@@ -2,13 +2,16 @@
 
 # Syntax for executing racket from command line -> /proj/racket/bin/racket -f <file> -e <function>
 
+
+SETUP="(enable-production-mode)"
+
 if [ "$1" = "--encode" ] 
 then
   if [ "$#" != 4 ] 
   then
-    echo -e "stegan encode requires 3 arguments\nstegan --encode <original wav filename> <filename of data to imprint> <ou$a"
+    echo -e "stegan encode requires 3 arguments\nstegan --encode <original wav filename> <filename of data to imprint> <output filename>"
   else
-    echo -e "implement the stego script"
+    /proj/racket/bin/racket -f src/encoder.rkt -e "$SETUP(encode-payload-into-carrier \"$2\" \"$3\" \"$4\")"
   fi
 elif [ "$1" = "--decode" ] 
 then
@@ -16,7 +19,7 @@ then
   then
     echo -e "stegan decode requires 2 arguments\nstegan --decode <filename of WAV file> <output filename>"
   else
-    echo -e "implement the stego script"
+    /proj/racket/bin/racket -f src/decoder.rkt -e "$SETUP(decode-payload-from-carrier \"$2\" \"$3\")"
   fi
 else
   echo -e "Usage: stegan --encode|decode <args>..."

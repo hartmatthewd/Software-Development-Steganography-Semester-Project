@@ -16,7 +16,7 @@
 ;;; carrier - the .wav or .mp3 file to encode the payload into
 ;;; output - the name of the file which to output the encoded .wav or .mp3 to
 
-(define (encode-payload-into-carrier payload carrier output)
+(define (encode-payload-into-carrier carrier payload output)
     (let [(payload-bytes (read-file-into-bytestring payload))
           (encoder (make-encoder carrier output))]
          (ensure-destination-large-enough? encoder (bytes-length payload-bytes))

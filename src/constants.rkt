@@ -2,9 +2,10 @@
 (define lame-path "/course/cs4500wc/bin/lame --quiet -q 9 ")
 
 ;;; the number of samples to use for each fft
-(define samples-per-fft 256)
+(define samples-per-fft 512)
 
-(define frequency-components-to-encode (vector 2 3 4))
+;;; More components make more noise but allow for more encoding
+(define frequency-components-to-encode (vector 4 5 6))
 
 (define tmpsrc "/tmp/stegosrc")
 (define tmpdest "/tmp/stegodest")
