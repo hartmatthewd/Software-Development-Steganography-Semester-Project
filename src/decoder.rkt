@@ -1,6 +1,5 @@
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
-(load "src/util.rkt")
 (load "src/frequencycoder.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -75,3 +74,12 @@
         (is-same-angle? x pi/2)
         (is-same-angle? x pi)
         (is-same-angle? x 3pi/2)))
+
+;;;;;;;;;;;;;;;;;;
+;;; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
+;;; bits - the vector of bits of which to make a byte out of
+
+(define (get-byte-from-bit-vector bits)
+  (do [(index 1 (add1 index))
+       (byte (vector-ref bits 0) (bitwise-ior (vector-ref bits index) (arithmetic-shift byte 1)))]
+      [(= index 8) byte]))

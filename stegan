@@ -3,7 +3,7 @@
 # Syntax for executing racket from command line -> /proj/racket/bin/racket -f <file> -e <function>
 
 
-SETUP="(enable-production-mode)"
+SETUP=""
 
 if [ "$1" = "--encode" ] 
 then

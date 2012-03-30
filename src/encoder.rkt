@@ -1,6 +1,5 @@
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
-(load "src/util.rkt")
 (load "src/frequencycoder.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -78,3 +77,14 @@
     (if (= bit 0)
         (make-polar (magnitude frequency) (+ (* pi/2 (round (- (/ (angle frequency) pi/2) 0.5))) (/ pi/2 2)))
         (make-polar (magnitude frequency) (* pi/2 (round (/ (angle frequency) pi/2))))))
+
+;;;;;;;;;;;;;;;;;;
+;;; Given a byte, return a list whos elements are the individual bits of the byte
+;;; byte - the byte of which to return a vector of its bits
+
+(define (get-bits-from-byte byte)
+  (let ((v (make-vector 8)))
+    (do [(i 7 (sub1 i)) (b byte (arithmetic-shift b -1))]
+        [(< i 0)]
+        (vector-set! v i (bitwise-and b 1)))
+    v))

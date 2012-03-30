@@ -124,7 +124,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
-;;;;;;;;  Locals
+;;;;;;;;  Utils
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -133,6 +133,12 @@
     (div (- (wavfile-chunksize wav) 
             (* 8 4 (wavfile-bytespersample wav) samples-per-fft))
          (* 8 (wavfile-bytespersample wav) samples-per-fft)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;  Locals
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel in the given wav
@@ -153,7 +159,7 @@
          (bytes-set! bytes 1 (char->integer #\I))
          (bytes-set! bytes 2 (char->integer #\F))
          (bytes-set! bytes 3 (char->integer #\F))
-         (bytes-copy! bytes 4 (value->bytes (+ 36 (wavfile-chunksize wav)) 'little 4))
+         (bytes-copy! bytes 4 (integer->integer-bytes (+ 36 (wavfile-chunksize wav)) 4 #f #f))
          (bytes-set! bytes 8 (char->integer #\W))
          (bytes-set! bytes 9 (char->integer #\A))
          (bytes-set! bytes 10 (char->integer #\V))
@@ -162,20 +168,24 @@
          (bytes-set! bytes 13 (char->integer #\m))
          (bytes-set! bytes 14 (char->integer #\t))
          (bytes-set! bytes 15 (char->integer #\space))
-         (bytes-copy! bytes 16 (value->bytes 16 'little 4))
-         (bytes-copy! bytes 20 (value->bytes (wavfile-audioformat wav) 'little 2))
-         (bytes-copy! bytes 22 (value->bytes (wavfile-channels wav) 'little 2))
-         (bytes-copy! bytes 24 (value->bytes (wavfile-samplerate wav) 'little 4))
-         (bytes-copy! bytes 28 (value->bytes (wavfile-byterate wav) 'little 4))
-         (bytes-copy! bytes 32 (value->bytes (wavfile-blockalign wav) 'little 2))
-         (bytes-copy! bytes 34 (value->bytes (* (wavfile-bytespersample wav) 8) 'little 2))
+         (bytes-copy! bytes 16 (integer->integer-bytes 16 4 #f #f))
+         (bytes-copy! bytes 20 (integer->integer-bytes (wavfile-audioformat wav) 2 #f #f))
+         (bytes-copy! bytes 22 (integer->integer-bytes (wavfile-channels wav) 2 #f #f))
+         (bytes-copy! bytes 24 (integer->integer-bytes (wavfile-samplerate wav) 4 #f #f))
+         (bytes-copy! bytes 28 (integer->integer-bytes (wavfile-byterate wav) 4 #f #f ))
+         (bytes-copy! bytes 32 (integer->integer-bytes (wavfile-blockalign wav) 2 #f #f))
+         (bytes-copy! bytes 34 (integer->integer-bytes (* (wavfile-bytespersample wav) 8) 2 #f #f))
          (bytes-set! bytes 36 (char->integer #\d))
          (bytes-set! bytes 37 (char->integer #\a))
          (bytes-set! bytes 38 (char->integer #\t))
          (bytes-set! bytes 39 (char->integer #\a))
-         (bytes-copy! bytes 40 (value->bytes (wavfile-chunksize wav) 'little 4))
+         (bytes-copy! bytes 40 (integer->integer-bytes (wavfile-chunksize wav) 4 #f #f))
          bytes))
 
+;;;;;;;;;;;;;;;;;;
+;;; Returns true if the given wavfile bytes are big endian, false otherwise
+(define (is-big-endian? wav)
+    (eq? (wavfile-endianess wav) 'big))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Extracted from: /course/cs4500wc/Examples/Wave/wav.sps
