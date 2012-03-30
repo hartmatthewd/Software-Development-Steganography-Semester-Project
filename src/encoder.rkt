@@ -17,12 +17,11 @@
 ;;; output - the name of the file which to output the encoded .wav or .mp3 to
 
 (define (encode-payload-into-carrier carrier payload output)
-    (let [(payload-bytes (read-file-into-bytestring payload))
-          (encoder (make-encoder carrier output))]
-         (ensure-destination-large-enough? encoder (bytes-length payload-bytes))
-         (encode-payload-size payload-bytes encoder)
-         (encode-bytes payload-bytes encoder)
-         (finalize-coder encoder)))
+    (let* [(payload-bytes (read-file-into-bytestring payload))
+           (encoder (make-encoder carrier output (bytes-length payload-bytes)))]
+          (encode-payload-size payload-bytes encoder)
+          (encode-bytes payload-bytes encoder)
+          (finalize-coder encoder)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a payload and a coder, encode the payload size into the coder

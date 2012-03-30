@@ -7,7 +7,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
-(struct coder (wavfile [overtone #:mutable] [frequencies #:mutable] [samples #:mutable]))
+(struct coder (wavfile [overtone #:mutable] [channel #:mutable] [frequencies #:mutable] [samples #:mutable]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -17,17 +17,29 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (make-decoder src)
-    (make-encoder src null))
+    (initialize-coder (make-coder src null)))
 
 ;;;;;;;;;;;;;;;;;;
-(define (make-encoder src dest)
-    (let [(coder (coder (file->wavfile src dest) -1 null null))]
-         (get-next-frequencies coder)
-         coder))
+(define (make-encoder src dest len)
+    (let [(coder (make-coder src dest))]
+         (ensure-destination-large-enough? coder len)
+         (write-wavfile-header (coder-wavfile coder))
+         (initialize-coder coder)))
+
+;;;;;;;;;;;;;;;;;;
+(define (make-coder src dest)
+    (coder (file->wavfile src dest) -1 0 null null))
+
+;;;;;;;;;;;;;;;;;;
+(define (initialize-coder coder)
+    (get-next-samples coder)
+    (parse-frequencies coder)
+    coder)
 
 ;;;;;;;;;;;;;;;;;;
 (define (finalize-coder coder)
     (write-current-frequencies coder)
+    (write-current-samples coder)
     (finalize-wavfile (coder-wavfile coder)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40,8 +52,7 @@
 (define (code-next-frequency coder func)
     (set-coder-overtone! coder (add1 (coder-overtone coder)))
     (when (= (coder-overtone coder) (vector-length frequency-components-to-encode))
-          (page-frequencies coder)
-          (set-coder-overtone! coder 0))
+          (page-frequencies coder))
     (func (coder-frequencies coder) (vector-ref frequency-components-to-encode (coder-overtone coder))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,26 +71,6 @@
 (define (validate-payload-size coder size)
     (min size (* (get-wavfile-max-payload-size (coder-wavfile coder)) (vector-length frequency-components-to-encode))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;
-;;;;;;;;     Locals
-;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;
-(define (page-frequencies coder)
-    (write-current-frequencies coder)
-    (get-next-frequencies coder))
-
-;;;;;;;;;;;;;;;;;;
-(define (write-current-frequencies coder)
-    (vector-copy! (coder-samples coder) 0 (sanitize-samples (fft-inverse (coder-frequencies coder)))))
-
-;;;;;;;;;;;;;;;;;;
-(define (get-next-frequencies coder)
-    (set-coder-samples! coder (get-next-samples (coder-wavfile coder)))
-    (set-coder-frequencies! coder (fft (coder-samples coder))))
-
 ;;;;;;;;;;;;;;;;;;
 ;;; Sanatize the frequency vactor to ensure that each sample is an exact integer
 ;;; (round off error in the fft can make them slightly off)
@@ -87,3 +78,46 @@
 
 (define (sanitize-samples samples)
     (vector-map! (lambda (x) (min 32767 (max -32768 (exact (round (real-part x)))))) samples))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Frequencies
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+(define (page-frequencies coder)
+    (write-current-frequencies coder)
+    (page-samples coder)
+    (parse-frequencies coder)
+    (set-coder-overtone! coder 0))
+
+;;;;;;;;;;;;;;;;;;
+(define (write-current-frequencies coder)
+    (vector-set! (coder-samples coder) (coder-channel coder) (sanitize-samples (fft-inverse (coder-frequencies coder)))))
+
+;;;;;;;;;;;;;;;;;;
+(define (parse-frequencies coder)
+    (set-coder-frequencies! coder (fft (vector-ref (coder-samples coder) (coder-channel coder)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;
+;;;;;;;;     Samples
+;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+(define (page-samples coder)
+    (set-coder-channel! coder (add1 (coder-channel coder)))
+    (when (= (coder-channel coder) (vector-length (coder-samples coder)))
+          (write-current-samples coder)
+          (get-next-samples coder)
+          (set-coder-channel! coder 0)))
+
+;;;;;;;;;;;;;;;;;;
+(define (write-current-samples coder)
+    (write-samples (coder-samples coder) (coder-wavfile coder)))
+
+;;;;;;;;;;;;;;;;;;
+(define (get-next-samples coder)
+    (set-coder-samples! coder (read-samples (coder-wavfile coder))))

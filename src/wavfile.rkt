@@ -8,10 +8,9 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; A holder for all the data needed to recreate the wav file
-(struct wavfile (input output dest [encode-channel #:mutable]
+(struct wavfile (input output dest byteperpage
                  endianess audioformat channels samplerate byterate
-                 blockalign bytespersample chunkstart chunksize 
-                 bytes samples))
+                 blockalign bytespersample chunkstart chunksize))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -24,39 +23,31 @@
 (define (file->wavfile src dest)
     (if (is-wav? src)
         (let [(out (if (null? dest) null (open-file-output-port dest)))]
-             (create-and-initialize-wavfile (open-file-input-port src) out null))
+             (create-wavfile-from-ports (open-file-input-port src) out null))
         (let [(out (if (null? dest) null (open-file-output-port tmpdest)))]
              (mp3->wav src tmpsrc)
-             (create-and-initialize-wavfile (open-file-input-port tmpsrc) out dest))))
+             (create-wavfile-from-ports (open-file-input-port tmpsrc) out dest))))
 
 ;;;;;;;;;;;;;;;;;;
 (define (finalize-wavfile wav)
    (when (not (null? (wavfile-output wav)))
-         (write-current-samples wav)
          (pipe-remaining-bytes (wavfile-input wav) (wavfile-output wav))
          (when (not (null? (wavfile-dest wav)))
                (wav->mp3 tmpdest (wavfile-dest wav))))
    (void))
 
 ;;;;;;;;;;;;;;;;;;
-(define (create-and-initialize-wavfile in out dest)
-    (let [(wav (call-with-values (lambda () (parse-wave-header (read-wavfile-header in)))
-                                 (lambda (e af c sr br ba bps s cs) (create-wavfile in out dest e af c sr br ba bps s cs))))]
-         (when (not (null? out))
-               (write-wavfile-header wav))
-         (read-next-wavfile-samples wav)
-         wav))
+(define (create-wavfile-from-ports in out dest)
+    (call-with-values (lambda () (parse-wave-header (read-wavfile-header in)))
+                      (lambda (e af c sr br ba bps s cs) (create-wavfile in out dest e af c sr br ba bps s cs))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Common method to create a wavfile
 (define (create-wavfile in out dest e af c sr br ba bps s cs)
-    (let* [(starting-channel (- 0 1))
-           (bytes-per-sample (/ bps 8))
+    (let* [(bytes-per-sample (/ bps 8))
            (chunk-size (- cs s))
-           (bytes-per-page (* bytes-per-sample c samples-per-fft))
-           (wav (wavfile in out dest starting-channel e af c sr br ba bytes-per-sample s chunk-size (make-bytes bytes-per-page) (make-vector c)))]
-         (vector-map! (lambda (s) (make-vector samples-per-fft)) (wavfile-samples wav))
-         wav))
+           (bytes-per-page (* bytes-per-sample c samples-per-fft))]
+          (wavfile in out dest bytes-per-page e af c sr br ba bytes-per-sample s chunk-size)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -73,28 +64,13 @@
     (write-bytes-to-file (create-wavfile-header-bytes wav) (wavfile-output wav)))
 
 ;;;;;;;;;;;;;;;;;;
-(define (page-wavfile-samples wav)
+(define (read-samples wav)
+    (bytes->samples (read-bytes-from-file (wavfile-byteperpage wav) (wavfile-input wav)) wav))
+
+;;;;;;;;;;;;;;;;;;
+(define (write-samples samples wav)
     (when (not (null? (wavfile-output wav)))
-          (write-current-samples wav))
-    (read-next-wavfile-samples wav))
-
-;;;;;;;;;;;;;;;;;;
-(define (read-next-wavfile-samples wav)
-    (read-next-bytes wav)
-    (parse-wavfile-bytes-into-samples wav))
-
-;;;;;;;;;;;;;;;;;;
-(define (write-current-samples wav)
-    (rewrite-wavfile-bytes wav)
-    (write-current-bytes wav))
-
-;;;;;;;;;;;;;;;;;;
-(define (read-next-bytes wav)
-    (bytes-copy! (wavfile-bytes wav) 0 (read-bytes-from-file (bytes-length (wavfile-bytes wav)) (wavfile-input wav))))
-
-;;;;;;;;;;;;;;;;;;
-(define (write-current-bytes wav)
-    (write-bytes-to-file (wavfile-bytes wav) (wavfile-output wav)))
+          (write-bytes-to-file (samples->bytes samples wav) (wavfile-output wav))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -103,29 +79,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
-;;; Wavfile, fill in the samples for each channel of the wavfile from the bytes of the wavfile
-;;; wav - the wavfile to set the samples of
-
-(define (parse-wavfile-bytes-into-samples wav)
-    (for [(channel (wavfile-channels wav))]
-         (parse-wavfile-samples-for-channel wav channel)))
+(define (bytes->samples bytes wav)
+    (let [(samples (make-vector (wavfile-channels wav)))]
+         (for [(channel (wavfile-channels wav))]
+              (vector-set! samples channel (get-samples-for-channel bytes wav channel)))
+         samples))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Sets the vector representing the samples of either the left or right channel
-;;; bytes - a bytestring representing wav file data
-;;; wav - the wavfile to write to
-;;; channel - the channel to convert
-
-(define (parse-wavfile-samples-for-channel wav channel)
-    (let [(samples (vector-ref (wavfile-samples wav) channel))]
+(define (get-samples-for-channel bytes wav channel)
+    (let [(samples (make-vector samples-per-fft))]
          (do [(sample 0 (add1 sample))
               (byte (get-starting-byte channel wav) (get-next-byte byte wav))]
              [(= sample (vector-length samples))]
-             (vector-set! samples sample (integer-bytes->integer (wavfile-bytes wav)
+             (vector-set! samples sample (integer-bytes->integer bytes
                                                                  #t
                                                                  (is-big-endian? wav)
                                                                  byte
-                                                                 (+ byte (wavfile-bytespersample wav)))))))
+                                                                 (+ byte (wavfile-bytespersample wav)))))
+         samples))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
@@ -134,45 +105,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
-;;; Given a bytestring and a wavfile struct, rewrite *destructively* the wav samples to the bytestring
-;;; wav - the wavfile of whos samples to write
-;;; bytes - the bytes of which to write the wavfile samples to
-
-(define (rewrite-wavfile-bytes wav)
-    (for [(channel (wavfile-channels wav))]
-         (rewrite-wavfile-bytes-for-channel wav channel)))
+(define (samples->bytes samples wav)
+    (let [(bytes (make-bytes (wavfile-byteperpage wav)))]
+         (for [(channel (wavfile-channels wav))]
+              (write-bytes-for-channel samples bytes wav channel))
+         bytes))
 
 ;;;;;;;;;;;;;;;;;;
-;;; Writes *destructively* the given vector of samples to the bytes
-;;; bytes - a bytestring to write to
-;;; wav - the wavfile to retrieve the samples from
-;;; channel - the channel to write to
-
-(define (rewrite-wavfile-bytes-for-channel wav channel)
-    (let [(samples (vector-ref (wavfile-samples wav) channel))]
+(define (write-bytes-for-channel samples bytes wav channel)
+    (let [(s (vector-ref samples channel))]
          (do [(sample 0 (add1 sample))
               (byte (get-starting-byte channel wav) (get-next-byte byte wav))]
-             [(= sample (vector-length samples))]
-             (bytes-copy! (wavfile-bytes wav) byte (integer->integer-bytes (vector-ref samples sample)
-                                                                           (wavfile-bytespersample wav)
-                                                                           #t
-                                                                           (is-big-endian? wav))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;
-;;;;;;;;  Wavfile Encoding/Decoding
-;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;
-;;; Given a wavfile, return a copy of the next set of samples to encode
-
-(define (get-next-samples wav)
-    (set-wavfile-encode-channel! wav (add1 (wavfile-encode-channel wav)))
-    (when (= (wavfile-encode-channel wav) (wavfile-channels wav))
-          (set-wavfile-encode-channel! wav 0)
-          (page-wavfile-samples wav))
-    (vector-ref (wavfile-samples wav) (wavfile-encode-channel wav)))
+             [(= sample (vector-length s))]
+             (bytes-copy! bytes byte (integer->integer-bytes (vector-ref s sample)
+                                                             (wavfile-bytespersample wav)
+                                                             #t
+                                                             (is-big-endian? wav))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
