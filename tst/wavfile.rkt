@@ -1,10 +1,95 @@
 (define (run-wavfile-tests)
    (display "tst/wavfile.rkt") (newline)
+(file->wavfile-test)
+(finalize-wavfile-test)
+(create-wavfile-from-ports-test)
+(create-wavfile-test)
+(read-wavfile-header-test)
+(write-wavfile-header-test)
+(read-samples-test)
+(write-samples-test)
+(bytes->samples-test)
+(get-samples-for-cahnnel-test)
+(samples->bytes-test)
+(write-bytes-for-channel-test)
+(get-wavfile-max-payload-size-test)
+(get-starting-byte-test)
+(get-next-byte-test)
+(create-wavfile-header-bytes-test)
+(is-big-endian?-test)
 ;   (test-write-wavfile-bytes-for-channel)
 ;   (test-set-wavfile-samples-for-channel)
 ;   (test-write-wavfile-to-bytes)
 ;   (test-set-wavfile-samples)
 )
+
+(define (file->wavfile-test)
+;(file->wavfile src dest)
+(error "No test cases for file->wavfile"))
+
+(define (finalize-wavfile-test)
+;(finalize-wavfile wav)
+(error "No test cases for finalize-wavfile"))
+
+(define (create-wavfile-from-ports-test)
+;(create-wavfile-from-ports in out dest)
+(error "No test cases for create-wavfile-from-ports"))
+
+(define (create-wavfile-test)
+;(create-wavfile in out dest e af c sr br ba bps s cs)
+(error "No test cases for create-wavfile"))
+
+(define (read-wavfile-header-test)
+;(read-wavfile-header in)
+(error "No test cases for read-wavfile-header"))
+
+(define (write-wavfile-header-test)
+;(write-wavfile-header wav)
+(error "No test cases for write-wavfile-header"))
+
+(define (read-samples-test)
+;(read-samples wav)
+(error "No test cases for read-samples"))
+
+(define (write-samples-test)
+;(write-samples samples wav)
+(error "No test cases for write-samples"))
+
+(define (bytes->samples-test)
+;(bytes->samples bytes wav)
+(error "No test cases for bytes->samples"))
+
+(define (get-samples-for-cahnnel-test)
+;(get-samples-for-cahnnel bytes wav channel)
+(error "No test cases for get-samples-for-cahnnel"))
+
+(define (samples->bytes-test)
+;(samples->bytes samples wav)
+(error "No test cases for samples->bytes"))
+
+(define (write-bytes-for-channel-test)
+;(write-bytes-for-channel samples bytes wav channel)
+(error "No test cases for write-bytes-for-channel"))
+
+(define (get-wavfile-max-payload-size-test)
+;(get-wavfile-max-payload-size wav)
+(error "No test cases for get-wavfile-max-payload-size"))
+
+(define (get-starting-byte-test)
+;(get-starting-byte channel wav)
+(error "No test cases for get-starting-byte"))
+
+(define (get-next-byte-test)
+;(get-next-byte byte wav)
+(error "No test cases for get-next-byte"))
+
+(define (create-wavfile-header-bytes-test)
+;(create-wavfile-header-bytes wav)
+(error "No test cases for create-wavfile-header-bytes"))
+
+(define (is-big-endian?-test)
+;(is-big-endian? wav)
+(error "No test cases for is-big-endian?"))
 
 (define (test-write-wavfile-bytes-for-channel)
    (letrec* [(sample-wavfile (create-test-wavfile))
