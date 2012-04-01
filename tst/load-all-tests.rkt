@@ -14,8 +14,8 @@
    (load "tst/fileio.rkt")
    (run-fileio-tests)
 
-   (load "tst/phase-coder.rkt")
-   (run-phase-coder-tests)
+   (load "tst/frequencycoder.rkt")
+   (run-frequencycoder-tests)
 
    (load "tst/encoder.rkt")
    (run-encoder-tests)

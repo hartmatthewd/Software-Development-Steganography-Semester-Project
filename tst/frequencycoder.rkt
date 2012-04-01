@@ -1,0 +1,85 @@
+(define (run-frequencycoder-tests)
+   (display "tst/frequencycoder.rkt") (newline)
+   (make-decoder-test)
+   (make-encoder-test)
+   (make-coder-test)
+   (initialize-coder-test)
+   (finalize-coder-test)
+   (code-next-frequency-test)
+   (ensure-destination-large-enough?-test)
+   (validate-payload-size-test)
+   (get-max-payload-size-test)
+   (sanitize-samples-test)
+   (page-frequencies-test)
+   (write-current-frequencies-test)
+   (parse-frequencies-test)
+   (page-samples-test)
+   (write-current-samples-test)
+   (get-next-samples-test))
+
+(define (make-decoder-test)
+;(make-decoder src)
+(error "No test cases for make-decoder"))
+
+(define (make-encoder-test)
+;(make-encoder src dest len)
+(error "No test cases for make-encoder"))
+
+(define (make-coder-test)
+;(make-coder src dest)
+(error "No test cases for make-coder"))
+
+(define (initialize-coder-test)
+;(initialize-coder coder)
+(error "No test cases for initialize-coder"))
+
+(define (finalize-coder-test)
+;(finalize-coder coder)
+(error "No test cases for finalize-coder"))
+
+(define (code-next-frequency-test)
+;(code-next-frequency coder func)
+(error "No test cases for code-next-frequency"))
+
+(define (ensure-destination-large-enough?-test)
+;(ensure-destination-large-enough? coder size)
+(error "No test cases for ensure-destination-large-enough?"))
+
+(define (validate-payload-size-test)
+;(validate-payload-size coder size)
+(error "No test cases for validate-payload-size"))
+
+(define (get-max-payload-size-test)
+;(get-max-payload-size coder)
+(error "No test cases for get-max-payload-size"))
+
+(define (sanitize-samples-test)
+;(sanitize-samples samples)
+   (check-equal? (sanitize-samples (vector 1 2 3 4 5))
+                 (vector 1 2 3 4 5))
+   (check-equal? (sanitize-samples (vector 153.99+5e-10i 50000 -50000 -343.342+234.342i 5))
+                 (vector 154 32767 -32768 -343 5)))
+
+(define (page-frequencies-test)
+;(page-frequencies coder)
+(error "No test cases for page-frequencies"))
+
+(define (write-current-frequencies-test)
+;(write-current-frequencies coder)
+(error "No test cases for write-current-frequencies"))
+
+(define (parse-frequencies-test)
+;(parse-frequencies coder)
+(error "No test cases for parse-frequencies"))
+
+(define (page-samples-test)
+;(page-samples coder)
+(error "No test cases for page-samples"))
+
+(define (write-current-samples-test)
+;(write-current-samples coder)
+(error "No test cases for write-current-samples"))
+
+(define (get-next-samples-test)
+;(get-next-samples coder)
+(error "No test cases for get-next-samples"))
