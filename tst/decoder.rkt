@@ -11,19 +11,19 @@
 
 (define (decode-payload-from-carrier-test)
 ;(decode-payload-from-carrier carrier output)
-(error "No test cases for decode-payload-from-carrier"))
+(display "No test cases for decode-payload-from-carrier\n"))
 
 (define (decode-payload-test)
 ;(decode-payload decoder)
-(error "No test cases for decode-payload"))
+(display "No test cases for decode-payload\n"))
 
 (define (decode-payload-size-test)
 ;(decode-payload-size decoder)
-(error "No test cases for decode-payload-size"))
+(display "No test cases for decode-payload-size\n"))
 
 (define (decode-next-byte-test)
 ;(decode-next-byte decoder)
-(error "No test cases for decode-next-byte"))
+(display "No test cases for decode-next-byte\n"))
 
 (define (get-bit-from-frequency-test)
 ;(get-bit-from-frequency frequency)
@@ -34,11 +34,18 @@
 
 (define (is-same-angle?-test)
 ;(is-same-angle? a b)
-(error "No test cases for is-same-angle?"))
+ (check-equal? (is-same-angle? 0.552 0.552) true)
+ (check-equal? (is-same-angle? 1.2442 1.0) true)
+ (check-equal? (is-same-angle? (+ 1 round-off-error) 1) false))
 
 (define (angle-is-one?-test)
 ;(angle-is-one? x)
-(error "No test cases for angle-is-one?"))
+ (check-equal? (angle-is-one? 0) true)
+ (check-equal? (angle-is-one? pi/2) true)
+ (check-equal? (angle-is-one? pi) true)
+ (check-equal? (angle-is-one? 3pi/2) true)
+ (check-equal? (angle-is-one? 0.5234) false)
+ (check-equal? (angle-is-one? 1.1293) false))
 
 (define (get-byte-from-bit-vector-test)
 ;(get-byte-from-bit-vector bits)
