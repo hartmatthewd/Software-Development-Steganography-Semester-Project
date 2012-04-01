@@ -1,8 +1,72 @@
 (define (run-fileio-tests)
    (display "tst/fileio.rkt") (newline)
-   (test-is-mp3?)
-   (test-is-wav?)
+   (open-file-input-port-test)
+   (open-file-output-port-test)
+   (read-bytes-from-file-test)
+   (pipe-remaining-bytes-test)
+   (read-file-into-bytestring-test)
+   (write-bytestring-to-file-test)
+   (finalize-input-port-test)
+   (finalize-output-port-test)
+   (is-wav?-test)
+   (is-mp3?-test)
+   (wav->mp3-test)
+   (mp3->wav-test)
    (test-file-writer-reader))
+
+(define (open-file-input-port-test)
+;(open-file-input-port file)
+(error "No test cases for open-file-input-port"))
+
+(define (open-file-output-port-test)
+;(open-file-output-port file)
+(error "No test cases for open-file-output-port"))
+
+(define (read-bytes-from-file-test)
+;(read-bytes-from-file amt in-port)
+(error "No test cases for read-bytes-from-file"))
+
+(define (write-bytes-to-file-test)
+;(write-bytes-to-file bytes out-port)
+(error "No test cases for write-bytes-to-file"))
+
+(define (pipe-remaining-bytes-test)
+;(pipe-remaining-bytes in out)
+(error "No test cases for pipe-remaining-bytes"))
+
+(define (read-file-into-bytestring-test)
+;(read-file-into-bytestring file)
+(error "No test cases for read-file-into-bytestring"))
+
+(define (write-bytestring-to-file-test)
+;(write-bytestring-to-file bytestring file)
+(error "No test cases for write-bytestring-to-file"))
+
+(define (finalize-input-port-test)
+;(finalize-input-port input)
+(error "No test cases for finalize-input-port"))
+
+(define (finalize-output-port-test)
+;(finalize-output-port output)
+(error "No test cases for finalize-output-port"))
+
+(define (is-wav?-test)
+;(is-wav? file)
+(error "No test cases for is-wav?"))
+
+(define (is-mp3?-test)
+;(is-mp3? file)
+  (check-false (is-mp3? "testwav.wav"))
+  (check-true (is-mp3? "testmp3.mp3")))
+
+(define (wav->mp3-test)
+;(wav->mp3 wav mp3)
+  (check-true (is-wav? "testwav.wav"))
+  (check-false (is-wav? "testmp3.mp3")))
+
+(define (mp3->wav-test)
+;(mp3->wav mp3 wav)
+(error "No test cases for mp3->wav"))
 
 (define (test-file-writer-reader)
     (let [(sample-wavfile (create-test-wavfile))]
@@ -20,11 +84,3 @@
               (check-equal? (wavfile-chunkstart sample-wavfile) (wavfile-chunkstart w))
               (check-equal? (wavfile-chunksize sample-wavfile) (wavfile-chunksize w))
               (check-equal? (wavfile-samples sample-wavfile) (wavfile-samples w)))))
-
-(define (test-is-mp3?)
-   (check-false (is-mp3? "testwav.wav"))
-   (check-true (is-mp3? "testmp3.mp3")))
-
-(define (test-is-wav?)
-   (check-true (is-wav? "testwav.wav"))
-   (check-false (is-wav? "testmp3.mp3")))
