@@ -1,18 +1,14 @@
 (require rackunit)
 
-(load "src/encoder.rkt")
-(load "src/decoder.rkt")
-
-;; 1 second of stereo audio, all samples are 0
-(define (create-test-wavfile)
-    (create-wavfile #f 'little 1 2 44100 176400 4 16 44 176444))
-
 (define (run-all-tests)
-   (load "tst/util.rkt")
-   (run-util-tests)
+   (load "src/requirements.rkt")
+   (load "src/constants.rkt")
 
    (load "tst/fileio.rkt")
    (run-fileio-tests)
+
+   (load "tst/wavfile.rkt")
+   (run-wavfile-tests)
 
    (load "tst/frequencycoder.rkt")
    (run-frequencycoder-tests)
@@ -22,7 +18,4 @@
 
    (load "tst/decoder.rkt")
    (run-decoder-tests)
-
-   (load "tst/wavfile.rkt")
-   (run-wavfile-tests)
 )
