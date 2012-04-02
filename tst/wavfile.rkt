@@ -25,71 +25,122 @@
 
 (define (file->wavfile-test)
 ;(file->wavfile src dest)
-(error "No test cases for file->wavfile"))
+(display "No test cases for file->wavfile\n"))
 
 (define (finalize-wavfile-test)
 ;(finalize-wavfile wav)
-(error "No test cases for finalize-wavfile"))
+(display "No test cases for finalize-wavfile\n"))
 
 (define (create-wavfile-from-ports-test)
 ;(create-wavfile-from-ports in out dest)
-(error "No test cases for create-wavfile-from-ports"))
+(display "No test cases for create-wavfile-from-ports\n"))
 
 (define (create-wavfile-test)
 ;(create-wavfile in out dest e af c sr br ba bps s cs)
-(error "No test cases for create-wavfile"))
+(display "No test cases for create-wavfile\n"))
 
 (define (read-wavfile-header-test)
 ;(read-wavfile-header in)
-(error "No test cases for read-wavfile-header"))
+(display "No test cases for read-wavfile-header\n"))
 
 (define (write-wavfile-header-test)
 ;(write-wavfile-header wav)
-(error "No test cases for write-wavfile-header"))
+(display "No test cases for write-wavfile-header\n"))
 
 (define (read-samples-test)
 ;(read-samples wav)
-(error "No test cases for read-samples"))
+(display "No test cases for read-samples\n"))
 
 (define (write-samples-test)
 ;(write-samples samples wav)
-(error "No test cases for write-samples"))
+(display "No test cases for write-samples\n"))
 
 (define (bytes->samples-test)
 ;(bytes->samples bytes wav)
-(error "No test cases for bytes->samples"))
+(display "No test cases for bytes->samples\n"))
 
 (define (get-samples-for-cahnnel-test)
 ;(get-samples-for-cahnnel bytes wav channel)
-(error "No test cases for get-samples-for-cahnnel"))
+(display "No test cases for get-samples-for-cahnnel\n"))
 
 (define (samples->bytes-test)
 ;(samples->bytes samples wav)
-(error "No test cases for samples->bytes"))
+(display "No test cases for samples->bytes\n"))
 
 (define (write-bytes-for-channel-test)
 ;(write-bytes-for-channel samples bytes wav channel)
-(error "No test cases for write-bytes-for-channel"))
+(display "No test cases for write-bytes-for-channel\n"))
 
 (define (get-wavfile-max-payload-size-test)
 ;(get-wavfile-max-payload-size wav)
-(error "No test cases for get-wavfile-max-payload-size"))
+(display "No test cases for get-wavfile-max-payload-size\n"))
 
 (define (get-starting-byte-test)
 ;(get-starting-byte channel wav)
-(error "No test cases for get-starting-byte"))
+(display "No test cases for get-starting-byte\n"))
 
 (define (get-next-byte-test)
 ;(get-next-byte byte wav)
-(error "No test cases for get-next-byte"))
+(display "No test cases for get-next-byte\n"))
 
 (define (create-wavfile-header-bytes-test)
 ;(create-wavfile-header-bytes wav)
-(error "No test cases for create-wavfile-header-bytes"))
+;(wavfile-create input
+;                output
+;                dest
+;                endianess
+;                audioformat
+;                channels
+;                samplerate
+;                byterate
+;                blockalign
+;                bytespersample
+;                chunkstart
+;                chunksize)
+(let ([wf1 (create-wavfile 'in 'out 'dest 'end
+                           1 2 44100
+                           176400 4 2
+                           42 'chst)] ;chunksize of 42 chosen for testing
+      [wf2 (create-wavfile 'in 'out 'dest 'end
+                           1 7 8000
+                           168000 21 3
+                           87 'chst)] ;chunksize of 87 chosen for testing
+      [h1 (make-bytes 44)]
+      [h2 (make-bytes 44)]
+      [iib (lambda (num numbytes) (integer->integer-bytes num numbytes #f))])
+
+      (bytes-copy! h1 0 (string->bytes/latin-1 "RIFF"))
+      (bytes-copy! h1 4 (iib (+ 36 (wavfile-chunksize wf1)) 4))
+      (bytes-copy! h1 8 (string->bytes/latin-1 "WAVEfmt "))
+      (bytes-copy! h1 16 (iib 16 4))
+      (bytes-copy! h1 20 (iib (wavfile-audioformat wf1) 2))
+      (bytes-copy! h1 22 (iib (wavfile-channels wf1) 2))
+      (bytes-copy! h1 24 (iib (wavfile-samplerate wf1) 4))
+      (bytes-copy! h1 28 (iib (wavfile-byterate wf1) 4))
+      (bytes-copy! h1 32 (iib (wavfile-blockalign wf1) 2))
+      (bytes-copy! h1 34 (iib (* 8 (wavfile-bytespersample wf1)) 2))
+      (bytes-copy! h1 36 (string->bytes/latin-1 "data"))
+      
+      (bytes-copy! h2 0 (string->bytes/latin-1 "RIFF"))
+      (bytes-copy! h2 4 (iib (+ 36 (wavfile-chunksize wf2)) 4))
+      (bytes-copy! h2 8 (string->bytes/latin-1 "WAVEfmt "))
+      (bytes-copy! h2 16 (iib 16 4))
+      (bytes-copy! h2 20 (iib (wavfile-audioformat wf2) 2))
+      (bytes-copy! h2 22 (iib (wavfile-channels wf2) 2))
+      (bytes-copy! h2 24 (iib (wavfile-samplerate wf2) 4))
+      (bytes-copy! h2 28 (iib (wavfile-byterate wf2) 4))
+      (bytes-copy! h2 32 (iib (wavfile-blockalign wf2) 2))
+      (bytes-copy! h2 34 (iib (* 8 (wavfile-bytespersample wf2)) 2))
+      (bytes-copy! h2 36 (string->bytes/latin-1 "data"))
+      (check-equal? (create-wavfile-header-bytes wf1) h1)
+      (check-equal? (create-wavfile-header-bytes wf2) h2)))
 
 (define (is-big-endian?-test)
 ;(is-big-endian? wav)
-(error "No test cases for is-big-endian?"))
+(let ([big-one (wafile #f #f #f #f 'big #f #f #f #f #f #f #f #f)]
+      [not-big-one (wafile #f #f #f #f 'xyzzy #f #f #f #f #f #f #f #f)])
+     (check-true (is-big-endian? big-one))
+     (check-false (is-big-endian? not-big-one))))
 
 (define (test-write-wavfile-bytes-for-channel)
    (letrec* [(sample-wavfile (create-test-wavfile))
