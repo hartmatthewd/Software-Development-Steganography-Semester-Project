@@ -30,42 +30,75 @@
 (define (create-test-wavfile)
     (create-wavfile-for-testing 'little 1 2 44100 176400 4 16 44 176444))
 
+;;;;;;;;;;;;;;;;;;
 (define (file->wavfile-test)
    ;(file->wavfile src dest)
    (display "No test cases for file->wavfile\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (finalize-wavfile-test)
    ;(finalize-wavfile wav)
    (display "No test cases for finalize-wavfile\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (create-wavfile-from-ports-test)
    ;(create-wavfile-from-ports in out dest)
    (display "No test cases for create-wavfile-from-ports\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (create-wavfile-test)
-   ;(create-wavfile in out dest e af c sr br ba bps s cs)
-   (display "No test cases for create-wavfile\n"))
+   (let [(wav (create-wavfile null null null 'little 1 2 44100 88200 4 16 44 176444))]
+        (check-equal? (wavfile-bytesperpage wav) 2048) ;;; 512 samples * 2 bytes * 2 channels
+        (check-equal? (wavfile-endianess wav) 'little)
+        (check-equal? (wavfile-audioformat wav) 1)
+        (check-equal? (wavfile-channels wav) 2)
+        (check-equal? (wavfile-samplerate wav) 44100)
+        (check-equal? (wavfile-byterate wav) 88200)
+        (check-equal? (wavfile-blockalign wav) 4)
+        (check-equal? (wavfile-bytespersample wav) 2)
+        (check-equal? (wavfile-chunkstart wav) 44)
+        (check-equal? (wavfile-chunksize wav) 176400)))
 
+;;;;;;;;;;;;;;;;;;
 (define (read-wavfile-header-test)
    ;(read-wavfile-header in)
    (display "No test cases for read-wavfile-header\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (write-wavfile-header-test)
    ;(write-wavfile-header wav)
    (display "No test cases for write-wavfile-header\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (read-samples-test)
    ;(read-samples wav)
    (display "No test cases for read-samples\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (write-samples-test)
    ;(write-samples samples wav)
    (display "No test cases for write-samples\n"))
 
+;;;;;;;;;;;;;;;;;;
 (define (bytes->samples-test)
-   ;(bytes->samples bytes wav)
-   (display "No test cases for bytes->samples\n"))
+    (let* [(wav (create-test-wavfile))
+           (b (make-bytes (wavfile-bytesperpage wav)))
+           (s1 (make-vector samples-per-fft))
+           (s2 (make-vector samples-per-fft))]
+          (bytes-set! b 0 1)
+          (bytes-set! b 2 1)
+          (bytes-set! b 4 0)
+          (bytes-set! b 5 1)
+          (bytes-set! b 6 1)
+          (bytes-set! b 7 2)
+          (vector-set! s1 0 1)
+          (vector-set! s2 0 1)
+          (vector-set! s1 1 256)
+          (vector-set! s2 1 513)
+          (check-equal? (vector s1 s2) (bytes->samples b wav))))
+          
 
+;;;;;;;;;;;;;;;;;;
 (define (get-samples-for-channel-test)
    (let [(wav (create-test-wavfile))]
         (let [(control-samples (make-vector samples-per-fft))
@@ -87,6 +120,7 @@
              (bytes-set! bytes 10 4)
              (check-equal? (get-samples-for-channel bytes wav 1) control-samples))))
 
+;;;;;;;;;;;;;;;;;;
 (define (samples->bytes-test)
    (let* [(wav (create-test-wavfile))
           (s1 (make-vector samples-per-fft))
@@ -110,6 +144,7 @@
               (check-equal? bytes control-bytes))))
 
 
+;;;;;;;;;;;;;;;;;;
 (define (write-bytes-for-channel-test)
    (let* [(wav (create-test-wavfile))
           (test-bytes (make-bytes (wavfile-chunksize wav)))
@@ -131,9 +166,11 @@
          (write-bytes-for-channel (vector null samples) test-bytes wav 1)
          (check-equal? control-bytes test-bytes)))
 
+;;;;;;;;;;;;;;;;;;
 (define (get-wavfile-max-payload-size-test)
    (check-equal? (get-wavfile-max-payload-size (create-test-wavfile)) 17))
 
+;;;;;;;;;;;;;;;;;;
 (define (get-starting-byte-test)
    (let [(wav (create-test-wavfile))]
         (check-equal? (get-starting-byte 0 wav) 0)
@@ -141,6 +178,7 @@
         (check-equal? (get-starting-byte 2 wav) 4)
         (check-equal? (get-starting-byte 3 wav) 6)))
 
+;;;;;;;;;;;;;;;;;;
 (define (get-next-byte-test)
    (let [(wav (create-test-wavfile))]
         (check-equal? (get-next-byte 0 wav) 4)
@@ -148,6 +186,7 @@
         (check-equal? (get-next-byte 2 wav) 6)
         (check-equal? (get-next-byte 3 wav) 7)))
 
+;;;;;;;;;;;;;;;;;;
 (define (create-wavfile-header-bytes-test)
    (let [(iib (lambda (num numbytes) (integer->integer-bytes num numbytes #f)))]
         (let [(wf1 (create-wavfile-for-testing 'little 1 2 44100 176400 4 2 44 82)) ;data size of 42 chosen for testing
@@ -181,55 +220,9 @@
              (bytes-copy! h2 40 (iib (wavfile-chunksize wf2) 4))
 	     (check-equal? (create-wavfile-header-bytes wf2) h2))))
 
+;;;;;;;;;;;;;;;;;;
 (define (is-big-endian?-test)
    (let [(big-one (create-wavfile-for-testing 'big 0 0 0 0 0 0 0 0))
 	 (not-big-one (create-wavfile-for-testing 'little 0 0 0 0 0 0 0 0))]
 	(check-true (is-big-endian? big-one))
 	(check-false (is-big-endian? not-big-one))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (test-write-wavfile-bytes-for-channel)
-   (letrec* [(sample-wavfile (create-test-wavfile))
-             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
-             (control (bytes-append (make-bytes 44 1)
-                                    (make-bytes (wavfile-chunksize sample-wavfile) 0)))]
-           (write-wavfile-bytes-for-channel bytes sample-wavfile 0)
-           (check-false (bytes=? bytes control))
-           (write-wavfile-bytes-for-channel bytes sample-wavfile 1)
-           (check-true (bytes=? bytes control))))
-
-(define (test-write-wavfile-to-bytes)
-   (letrec* [(sample-wavfile (create-test-wavfile))
-             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
-             (control (bytes-append (make-bytes 44 1)
-                                    (make-bytes (wavfile-chunksize sample-wavfile) 0)))]
-           (write-wavfile-to-bytes sample-wavfile bytes)
-           (check-true (bytes=? bytes control))))
-
-(define (test-set-wavfile-samples-for-channel)
-   (letrec* [(sample-wavfile (create-test-wavfile))
-             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
-             (left (make-vector 44100 257))
-             (right (make-vector 44100 257))]
-           (set-wavfile-samples-for-channel bytes sample-wavfile 0)
-           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
-           (check-not-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))
-           (set-wavfile-samples-for-channel bytes sample-wavfile 1)
-           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
-           (check-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))))
-
-(define (test-set-wavfile-samples)
-   (letrec* [(sample-wavfile (create-test-wavfile))
-             (bytes (make-bytes (+ (wavfile-chunkstart sample-wavfile) (wavfile-chunksize sample-wavfile)) 1))
-             (left (make-vector 44100 257))
-             (right (make-vector 44100 257))]
-           (set-wavfile-samples bytes sample-wavfile)
-           (check-equal? left (vector-ref (wavfile-samples sample-wavfile) 0))
-           (check-equal? right (vector-ref (wavfile-samples sample-wavfile) 1))))
