@@ -13,7 +13,7 @@
 ;;; carrier - the carrier where to find the hidden message
 ;;; output - the file to output the hidden message into
 (define (decode-payload-from-carrier carrier output)
-    (write-bytestring-to-file (decode-payload (make-decoder carrier)) output))
+    (bytes->file (decode-payload (make-decoder carrier)) output))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; decode a secret message from the given coder and return it as a bytestring
@@ -27,6 +27,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a coder, decode the payload size
+;;; decoder - the coder where to find the hidden message
 
 (define (decode-payload-size decoder)
     (validate-payload-size decoder 
@@ -39,6 +40,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a coder, decode the payload
+;;; decoder - the coder where to find the hidden message
 
 (define (decode-next-byte decoder)
     (let [(bits (make-vector 8))
@@ -64,11 +66,18 @@
 (define round-off-error (/ pi 8))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Tests if the two given angles are the same within a round off error limit
+;;; a - an angle to test
+;;; b - an angle to test
+
 (define (is-same-angle? a b)
     (or (< (abs (- a b)) round-off-error)
         (< (abs (- b a)) round-off-error)))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Returns true if the given angle represents a binary one
+;;; x - the angle to test
+
 (define (angle-is-one? x)
     (or (is-same-angle? x 0)
         (is-same-angle? x pi/2)

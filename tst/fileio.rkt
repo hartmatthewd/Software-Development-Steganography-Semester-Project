@@ -7,10 +7,9 @@
    (read-bytes-from-file-test)
    (write-bytes-to-file-test)
    (pipe-remaining-bytes-test)
-   (read-file-into-bytestring-test)
-   (write-bytestring-to-file-test)
    (finalize-input-port-test)
    (finalize-output-port-test)
+   (bytes->file-test)
    (is-wav?-test)
    (is-mp3?-test)
    (wav->mp3-test)
@@ -51,17 +50,6 @@
         (finalize-output-port out))
    (check-equal? (file->bytes tmpsrc) (file->bytes tmpdest)))
 
-
-;;;;;;;;;;;;;;;;;;
-(define (read-file-into-bytestring-test)
-   ;(read-file-into-bytestring file)
-   (display "No test cases for read-file-into-bytestring\n"))
-
-;;;;;;;;;;;;;;;;;;
-(define (write-bytestring-to-file-test)
-   ;(write-bytestring-to-file bytestring file)
-   (display "No test cases for write-bytestring-to-file\n"))
-
 ;;;;;;;;;;;;;;;;;;
 (define (finalize-input-port-test)
    ;(finalize-input-port input)
@@ -71,6 +59,11 @@
 (define (finalize-output-port-test)
    ;(finalize-output-port output)
    (display "No test cases for finalize-output-port\n"))
+
+;;;;;;;;;;;;;;;;;;
+(define (bytes->file-test)
+   ; (bytes->file bytes file)
+   (display "No test cases for bytes->file\n"))
 
 ;;;;;;;;;;;;;;;;;;
 (define (is-wav?-test)

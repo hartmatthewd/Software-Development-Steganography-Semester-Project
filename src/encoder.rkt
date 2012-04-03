@@ -16,7 +16,7 @@
 ;;; output - the name of the file which to output the encoded .wav or .mp3 to
 
 (define (encode-payload-into-carrier carrier payload output)
-    (let* [(payload-bytes (read-file-into-bytestring payload))
+    (let* [(payload-bytes (file->bytes payload))
            (encoder (make-encoder carrier output (bytes-length payload-bytes)))]
           (encode-payload-size payload-bytes encoder)
           (encode-bytes payload-bytes encoder)
@@ -24,12 +24,16 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a payload and a coder, encode the payload size into the coder
+;;; payload - the bytes of a payload whose size to encode
+;;; encoder - the coder of which to encode the payload size into
 
 (define (encode-payload-size payload encoder)
     (encode-bytes (integer->integer-bytes (bytes-length payload) 4 #f 'little) encoder))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a payload and a coder, encode the payload into the coder
+;;; payload - the bytes of a payload
+;;; encoder - the coder of which to encode the payload into
 
 (define (encode-bytes payload encoder)
     (for [(p (bytes-length payload))]
@@ -45,6 +49,9 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a bit to encode, and a coder, encode the give bit into the coder
+;;; bit - the bit to encode
+;;; encoder - the coder to encode the bit into
+
 (define (encode-bit bit encoder)
     (let [(encode-func (lambda (frequencies i)
                                (encode-bit-into-frequency frequencies bit i)

@@ -7,7 +7,7 @@
    (initialize-coder-test)
    (finalize-coder-test)
    (code-next-frequency-test)
-   (ensure-destination-large-enough?-test)
+   (ensure-destination-large-enough-test)
    (validate-payload-size-test)
    (get-max-payload-size-test)
    (sanitize-samples-test)
@@ -42,9 +42,9 @@
    ;(code-next-frequency coder func)
    (display "No test cases for code-next-frequency\n"))
 
-(define (ensure-destination-large-enough?-test)
-   ;(ensure-destination-large-enough? coder size)
-   (display "No test cases for ensure-destination-large-enough?\n"))
+(define (ensure-destination-large-enough-test)
+   ;(ensure-destination-large-enough coder size)
+   (display "No test cases for ensure-destination-large-enough\n"))
 
 (define (validate-payload-size-test)
    ;(validate-payload-size coder size)

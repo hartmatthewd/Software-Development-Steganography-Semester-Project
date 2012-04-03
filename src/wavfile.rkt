@@ -8,6 +8,20 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; A holder for all the data needed to recreate the wav file
+;;; input - an input port to read from
+;;; output - an output port to write to (can be null)
+;;; dest - a destination path to convert to when done encoding (can be null)
+;;; bytesperpage - the number of bytes to write/read on every page
+;;; endianes - the endianess of the samples
+;;; audioformat - the audio format
+;;; channels - the number of channels
+;;; samplerate - the number of samples per second per channel
+;;; byterate - the number of bytes per second per channel
+;;; blockalign - the difference, in bytes, between any two concurrent samples of the sample channel
+;;; bytespersample - the number of bytes that represent each sample
+;;; chunkstart - the start of the data segment in bytes
+;;; chunksize - the size of the data segment in bytes
+
 (struct wavfile (input output dest bytesperpage
                  endianess audioformat channels samplerate byterate
                  blockalign bytespersample chunkstart chunksize))
@@ -20,6 +34,9 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Return a wavfile representation of the given in file set to write to the given out file
+;;; src - the source where to find a wav or mp3 file
+;;; dest - where to write the encoded file to when done encoding
+
 (define (file->wavfile src dest)
     (if (is-wav? src)
         (let [(out (if (null? dest) null (open-file-output-port dest)))]
@@ -29,6 +46,10 @@
              (create-wavfile-from-ports (open-file-input-port tmpsrc) out dest))))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Finalizes the wavfile, pipeling the remaining bytes, and flushing and closing the ports
+;;; NOTE - the is required when encoding, optional when decoding
+;;; wav - the wavfile to finalize
+
 (define (finalize-wavfile wav)
    (when (not (null? (wavfile-output wav)))
          (pipe-remaining-bytes (wavfile-input wav) (wavfile-output wav))
@@ -37,12 +58,30 @@
    (void))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Creates a wavfile
+;;; in - an input port to read from
+;;; out - an output port to write to
+;;; dest - where to write the encoded file to when done encoding
+
 (define (create-wavfile-from-ports in out dest)
     (call-with-values (lambda () (parse-wave-header (read-wavfile-header in)))
                       (lambda (e af c sr br ba bps s cs) (create-wavfile in out dest e af c sr br ba bps s cs))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Common method to create a wavfile
+;;; in - an input port to read from
+;;; out - an output port to write to
+;;; dest - where to write the encoded file to when done encoding
+;;; e - endianess
+;;; af - audio format
+;;; c - channels
+;;; sr - sample rate
+;;; br - byte rate
+;;; ba - block align
+;;; bps - bits per second
+;;; s - chunkstart
+;;; cs - chunksize
+
 (define (create-wavfile in out dest e af c sr br ba bps s cs)
     (let* [(bytes-per-sample (/ bps 8))
            (chunk-size (- cs s))
@@ -56,18 +95,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
+;;; Returns a bytestring for the header portion of the wavfile located in the given input port
+;;; in - the given input port reading from a wave file
+
 (define (read-wavfile-header in)
     (read-bytes-from-file 44 in))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Create and write wave file header bytes to the output port of the given wavfile
+;;; wavfile - the wavfile who's header to write
+
 (define (write-wavfile-header wav)
     (write-bytes-to-file (create-wavfile-header-bytes wav) (wavfile-output wav)))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Reads the next set of samples from the source of the given wavfile
+;;; wav - the wavfile to read the next set of samples from
+
 (define (read-samples wav)
     (bytes->samples (read-bytes-from-file (wavfile-bytesperpage wav) (wavfile-input wav)) wav))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Writes the given samples to the given wavfile
+;;; samples - the vector of samples to write
+;;; wav - the wavfile to write the given samples to
+
 (define (write-samples samples wav)
     (when (not (null? (wavfile-output wav)))
           (write-bytes-to-file (samples->bytes samples wav) (wavfile-output wav))))
@@ -79,6 +131,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
+;;; Converts the given bytes into a vector of samples for the given wavfile
+;;; bytes - the bytestring to convert to samples
+;;; wav - the wavfile whos samples the returned vector will represent
+
 (define (bytes->samples bytes wav)
     (let [(samples (make-vector (wavfile-channels wav)))]
          (for [(channel (wavfile-channels wav))]
@@ -86,6 +142,11 @@
          samples))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Converts the given bytes into a vector of samples for the given wavfile for the given channel
+;;; bytes - the bytestring to convert to samples
+;;; wav - the wavfile whos samples the returned vector will represent
+;;; channel - the channel of audio to convert (base 0)
+
 (define (get-samples-for-channel bytes wav channel)
     (let [(samples (make-vector samples-per-fft))]
          (do [(sample 0 (add1 sample))
@@ -105,6 +166,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
+;;; Converts the given samples into bytes for the given wavfile
+;;; samples - the vector of samples to convert into bytes
+;;; wav - the wavfile whos bytes the returned bytestring will represent
+
 (define (samples->bytes samples wav)
     (let [(bytes (make-bytes (wavfile-bytesperpage wav)))]
          (for [(channel (wavfile-channels wav))]
@@ -112,6 +177,11 @@
          bytes))
 
 ;;;;;;;;;;;;;;;;;;
+;;; Converts the given samples into bytes for the given wavfile for the given channel
+;;; samples - the vector of samples to convert into bytes
+;;; wav - the wavfile whos bytes the returned bytestring will represent
+;;; channel - the channel of audio to convert (base 0)
+
 (define (write-bytes-for-channel samples bytes wav channel)
     (let [(s (vector-ref samples channel))]
          (do [(sample 0 (add1 sample))
@@ -129,6 +199,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
+;;; Returns the maximum payload size of the given wavfile
+;;; wav - the wavfile to find the maximum payload size of
+
 (define (get-wavfile-max-payload-size wav)
     (let [(bytes-per-byte (* 8 (wavfile-bytespersample wav) samples-per-fft))]
          (div (- (wavfile-chunksize wav) (* 4 bytes-per-byte))
@@ -142,16 +215,21 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel in the given wav
+;;; wav - the wavfile whos starting data byte to find
+
 (define (get-starting-byte channel wav)
     (* (wavfile-bytespersample wav) channel))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Given a byte index and a wav, get the next byte to write to
+;;; wav - the wavfile whos byte this will represent
+
 (define (get-next-byte byte wav)
     (+ byte (wavfile-blockalign wav)))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Creates a bytestring representing the header of the given wavfile
+;;; wav - the wavfile whos header this will represent
 
 (define (create-wavfile-header-bytes wav)
     (let [(bytes (make-bytes 44))]
@@ -184,6 +262,8 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns true if the given wavfile bytes are big endian, false otherwise
+;;; wav - the wavfile of which to determine if is big endian or not
+
 (define (is-big-endian? wav)
     (eq? (wavfile-endianess wav) 'big))
 
