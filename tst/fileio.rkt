@@ -43,7 +43,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (pipe-remaining-bytes-test)
-   (copy-file "testwav.wav" tmpsrc #t)
+   (copy-file testwav tmpsrc #t)
    (let [(in (open-file-input-port tmpsrc))
          (out (open-file-output-port tmpdest))]
         (pipe-remaining-bytes in out)
@@ -74,20 +74,20 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (is-wav?-test)
-   (check-true (is-wav? "testwav.wav"))
-   (check-false (is-wav? "testmp3.mp3")))
+   (check-true (is-wav? testwav))
+   (check-false (is-wav? testmp3)))
 
 ;;;;;;;;;;;;;;;;;;
 (define (is-mp3?-test)
-   (check-false (is-mp3? "testwav.wav"))
-   (check-true (is-mp3? "testmp3.mp3")))
+   (check-false (is-mp3? testwav))
+   (check-true (is-mp3? testmp3)))
 
 ;;;;;;;;;;;;;;;;;;
 (define (wav->mp3-test)
-   (wav->mp3 "testwav.wav" tmpsrc)
+   (wav->mp3 testwav tmpsrc)
    (check-true (is-mp3? tmpsrc)))
 
 ;;;;;;;;;;;;;;;;;;
 (define (mp3->wav-test)
-   (mp3->wav "testmp3.mp3" tmpsrc)
+   (mp3->wav testmp3 tmpsrc)
    (check-true (is-wav? tmpsrc)))

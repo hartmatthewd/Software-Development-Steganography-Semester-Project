@@ -18,4 +18,7 @@
 
    (load "tst/decoder.rkt")
    (run-decoder-tests)
+
+   (load "tst/encoder-decoder.rkt")
+   (run-encoder-decoder-tests)
 )

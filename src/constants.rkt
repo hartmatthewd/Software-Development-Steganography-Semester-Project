@@ -9,6 +9,13 @@
 
 (define tmpsrc "/tmp/stegosrc")
 (define tmpdest "/tmp/stegodest")
+(define tmptemp "/tmp/stegotemp.mp3")
+
+(define testwav "tst/testwav.wav")
+(define testmp3 "tst/testmp3.mp3")
+(define testpayload "tst/testpayload.txt")
+
+(define biterrorlimit 0.05)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;

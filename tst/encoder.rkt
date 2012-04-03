@@ -1,34 +1,9 @@
 (define (run-encoder-tests)
    (load "src/encoder.rkt")
 
-   (encode-payload-into-carrier-test)
-   (encode-payload-size-test)
-   (encode-bytes-test)
-   (encode-byte-test)
-   (encode-bit-test)
    (get-shifted-frequency-test)
    (get-bits-from-byte-test)
    (encode-bit-into-frequency-test))
-
-(define (encode-payload-into-carrier-test)
-   ;(encode-payload-into-carrier carrier payload output)
-   (display "No test cases for encode-payload-into-carrier\n"))
-
-(define (encode-payload-size-test)
-   ;(encode-payload-size payload encoder)
-   (display "No test cases for encode-payload-size\n"))
-
-(define (encode-bytes-test)
-   ;(encode-bytes payload encoder)
-   (display "No test cases for encode-bytes\n"))
-
-(define (encode-byte-test)
-   ;(encode-byte byte encoder)
-   (display "No test cases for encode-byte\n"))
-
-(define (encode-bit-test)
-   ;(encode-bit bit encoder)
-   (display "No test cases for encode-bit\n"))
 
 (define (get-shifted-frequency-test)
    ;(get-shifted-frequency frequency bit)

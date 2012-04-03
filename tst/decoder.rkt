@@ -1,30 +1,10 @@
 (define (run-decoder-tests)
    (load "src/decoder.rkt")
 
-   (decode-payload-from-carrier-test)
-   (decode-payload-test)
-   (decode-payload-size-test)
-   (decode-next-byte-test)
    (get-bit-from-frequency-test)
    (is-same-angle?-test)
    (angle-is-one?-test)
    (get-byte-from-bit-vector-test))
-
-(define (decode-payload-from-carrier-test)
-   ;(decode-payload-from-carrier carrier output)
-   (display "No test cases for decode-payload-from-carrier\n"))
-
-(define (decode-payload-test)
-   ;(decode-payload decoder)
-   (display "No test cases for decode-payload\n"))
-
-(define (decode-payload-size-test)
-   ;(decode-payload-size decoder)
-   (display "No test cases for decode-payload-size\n"))
-
-(define (decode-next-byte-test)
-   ;(decode-next-byte decoder)
-   (display "No test cases for decode-next-byte\n"))
 
 (define (get-bit-from-frequency-test)
    ;(get-bit-from-frequency frequency)
