@@ -8,7 +8,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 ;;; A holder for all the data needed to recreate the wav file
-(struct wavfile (input output dest byteperpage
+(struct wavfile (input output dest bytesperpage
                  endianess audioformat channels samplerate byterate
                  blockalign bytespersample chunkstart chunksize))
 
@@ -65,7 +65,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (read-samples wav)
-    (bytes->samples (read-bytes-from-file (wavfile-byteperpage wav) (wavfile-input wav)) wav))
+    (bytes->samples (read-bytes-from-file (wavfile-bytesperpage wav) (wavfile-input wav)) wav))
 
 ;;;;;;;;;;;;;;;;;;
 (define (write-samples samples wav)
@@ -106,7 +106,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (samples->bytes samples wav)
-    (let [(bytes (make-bytes (wavfile-byteperpage wav)))]
+    (let [(bytes (make-bytes (wavfile-bytesperpage wav)))]
          (for [(channel (wavfile-channels wav))]
               (write-bytes-for-channel samples bytes wav channel))
          bytes))
@@ -130,9 +130,9 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (get-wavfile-max-payload-size wav)
-    (div (- (wavfile-chunksize wav) 
-            (* 8 4 (wavfile-bytespersample wav) samples-per-fft))
-         (* 8 (wavfile-bytespersample wav) samples-per-fft)))
+    (let [(bytes-per-byte (* 8 (wavfile-bytespersample wav) samples-per-fft))]
+         (div (- (wavfile-chunksize wav) (* 4 bytes-per-byte))
+              bytes-per-byte)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;

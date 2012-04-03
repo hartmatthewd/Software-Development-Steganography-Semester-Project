@@ -10,7 +10,7 @@
     (read-samples-test)
     (write-samples-test)
     (bytes->samples-test)
-    (get-samples-for-cahnnel-test)
+    (get-samples-for-channel-test)
     (samples->bytes-test)
     (write-bytes-for-channel-test)
     (get-wavfile-max-payload-size-test)
@@ -18,10 +18,6 @@
     (get-next-byte-test)
     (create-wavfile-header-bytes-test)
     (is-big-endian?-test)
-    ;   (test-write-wavfile-bytes-for-channel)
-    ;   (test-set-wavfile-samples-for-channel)
-    ;   (test-write-wavfile-to-bytes)
-    ;   (test-set-wavfile-samples)
 )
 
 ;;;;;;;;;;;;;;;;;;
@@ -70,29 +66,87 @@
    ;(bytes->samples bytes wav)
    (display "No test cases for bytes->samples\n"))
 
-(define (get-samples-for-cahnnel-test)
-   ;(get-samples-for-cahnnel bytes wav channel)
-   (display "No test cases for get-samples-for-cahnnel\n"))
+(define (get-samples-for-channel-test)
+   (let [(wav (create-test-wavfile))]
+        (let [(control-samples (make-vector samples-per-fft))
+              (bytes (make-bytes (wavfile-bytesperpage wav)))]
+             (vector-set! control-samples 0 5)
+             (vector-set! control-samples 1 256)
+             (vector-set! control-samples 2 4)
+             (bytes-set! bytes 0 5)
+             (bytes-set! bytes 5 1)
+             (bytes-set! bytes 8 4)
+             (check-equal? (get-samples-for-channel bytes wav 0) control-samples))
+        (let [(control-samples (make-vector samples-per-fft))
+              (bytes (make-bytes (wavfile-bytesperpage wav)))]
+             (vector-set! control-samples 0 5)
+             (vector-set! control-samples 1 256)
+             (vector-set! control-samples 2 4)
+             (bytes-set! bytes 2 5)
+             (bytes-set! bytes 7 1)
+             (bytes-set! bytes 10 4)
+             (check-equal? (get-samples-for-channel bytes wav 1) control-samples))))
 
 (define (samples->bytes-test)
-   ;(samples->bytes samples wav)
-   (display "No test cases for samples->bytes\n"))
+   (let* [(wav (create-test-wavfile))
+          (s1 (make-vector samples-per-fft))
+          (s2 (make-vector samples-per-fft))
+          (samples (vector s1 s2))]
+         (vector-set! s1 0 65)
+         (vector-set! s1 1 596)
+         (vector-set! s1 2 67)
+         (vector-set! s2 0 5)
+         (vector-set! s2 1 4)
+         (vector-set! s2 2 3)
+         (let [(bytes (samples->bytes samples wav))
+               (control-bytes (make-bytes (wavfile-bytesperpage wav)))]
+              (bytes-set! control-bytes 0 65)
+              (bytes-set! control-bytes 2 5)
+              (bytes-set! control-bytes 4 84)
+              (bytes-set! control-bytes 5 2)
+              (bytes-set! control-bytes 6 4)
+              (bytes-set! control-bytes 8 67)
+              (bytes-set! control-bytes 10 3)
+              (check-equal? bytes control-bytes))))
+
 
 (define (write-bytes-for-channel-test)
-   ;(write-bytes-for-channel samples bytes wav channel)
-   (display "No test cases for write-bytes-for-channel\n"))
+   (let* [(wav (create-test-wavfile))
+          (test-bytes (make-bytes (wavfile-chunksize wav)))
+          (samples (make-vector (wavfile-samplerate wav)))
+          (control-bytes (make-bytes (wavfile-chunksize wav)))]
+         (vector-set! samples 0 65)
+         (vector-set! samples 1 596)
+         (vector-set! samples 2 67)
+         (bytes-set! control-bytes 0 65)
+         (bytes-set! control-bytes 4 84)
+         (bytes-set! control-bytes 5 2)
+         (bytes-set! control-bytes 8 67)
+         (write-bytes-for-channel (vector samples null) test-bytes wav 0)
+         (check-equal? control-bytes test-bytes)
+         (bytes-set! control-bytes 2 65)
+         (bytes-set! control-bytes 6 84)
+         (bytes-set! control-bytes 7 2)
+         (bytes-set! control-bytes 10 67)
+         (write-bytes-for-channel (vector null samples) test-bytes wav 1)
+         (check-equal? control-bytes test-bytes)))
 
 (define (get-wavfile-max-payload-size-test)
-   ;(get-wavfile-max-payload-size wav)
-   (display "No test cases for get-wavfile-max-payload-size\n"))
+   (check-equal? (get-wavfile-max-payload-size (create-test-wavfile)) 17))
 
 (define (get-starting-byte-test)
-   ;(get-starting-byte channel wav)
-   (display "No test cases for get-starting-byte\n"))
+   (let [(wav (create-test-wavfile))]
+        (check-equal? (get-starting-byte 0 wav) 0)
+        (check-equal? (get-starting-byte 1 wav) 2)
+        (check-equal? (get-starting-byte 2 wav) 4)
+        (check-equal? (get-starting-byte 3 wav) 6)))
 
 (define (get-next-byte-test)
-   ;(get-next-byte byte wav)
-   (display "No test cases for get-next-byte\n"))
+   (let [(wav (create-test-wavfile))]
+        (check-equal? (get-next-byte 0 wav) 4)
+        (check-equal? (get-next-byte 1 wav) 5)
+        (check-equal? (get-next-byte 2 wav) 6)
+        (check-equal? (get-next-byte 3 wav) 7)))
 
 (define (create-wavfile-header-bytes-test)
    (let [(iib (lambda (num numbytes) (integer->integer-bytes num numbytes #f)))]
@@ -132,6 +186,14 @@
 	 (not-big-one (create-wavfile-for-testing 'little 0 0 0 0 0 0 0 0))]
 	(check-true (is-big-endian? big-one))
 	(check-false (is-big-endian? not-big-one))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (test-write-wavfile-bytes-for-channel)
    (letrec* [(sample-wavfile (create-test-wavfile))

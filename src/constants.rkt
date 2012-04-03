@@ -15,7 +15,7 @@
 (define testmp3 "tst/testmp3.mp3")
 (define testpayload "tst/testpayload.txt")
 
-(define biterrorlimit 0.05)
+(define biterrorlimit 0.01)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
