@@ -17,7 +17,8 @@
                   (for [(j 8)]
                        (when (not (= (vector-ref bits1 j) (vector-ref bits2 j)))
                              (set! diff (add1 diff))))))
-        (when (> (/ diff (* 8 (bytes-length b1))) biterrorlimit)
+        (when (or (not (= (bytes-length b1) (bytes-length b2)))
+                  (> (/ diff (* 8 (bytes-length b1))) biterrorlimit))
               (fail (string-append "BER outside allowable range -- payload length: "
                                    (number->string (bytes-length b1))
                                    " -- decoded payload length: "
