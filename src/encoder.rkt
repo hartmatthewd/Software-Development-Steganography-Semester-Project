@@ -17,7 +17,7 @@
 
 (define (encode-payload-into-carrier carrier payload output)
     (let* [(payload-bytes (file->bytes payload))
-           (encoder (make-encoder carrier output (bytes-length payload-bytes)))]
+           (encoder (make-encoder carrier output))]
           (encode-payload-size payload-bytes encoder)
           (encode-bytes payload-bytes encoder)
           (finalize-coder encoder)))

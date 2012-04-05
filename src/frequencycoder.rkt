@@ -31,11 +31,9 @@
 ;;; Returns an encoder for the given carrier, who will output to the given destination, and whos payload will be of the given length
 ;;; src - the source file to decode from
 ;;; dest - the path to the file to output the encoded message to
-;;; len - the length of the payload to encode
 
-(define (make-encoder src dest len)
+(define (make-encoder src dest)
     (let [(coder (make-coder src dest))]
-         (ensure-destination-large-enough coder len)
          (write-wavfile-header (coder-wavfile coder))
          (initialize-coder coder)))
 
@@ -83,23 +81,31 @@
     (set-coder-overtone! coder (add1 (coder-overtone coder)))
     (when (= (coder-overtone coder) (vector-length frequency-components-to-encode))
           (page-frequencies coder))
-    (func (coder-frequencies coder) (vector-ref frequency-components-to-encode (coder-overtone coder))))
+    (let* [(i (vector-ref frequency-components-to-encode (coder-overtone coder)))]
+           (maybe-boost-frequency (coder-frequencies coder) i)
+           (func (coder-frequencies coder) i)))
+
+;;;;;;;;;;;;;;;;;
+(define (maybe-boost-frequency frequencies i)
+    (let [(freq (vector-ref frequencies i))]
+         (when (< (magnitude freq) min-magnitude)
+               (let [(ang (if (= freq 0) 
+                              pi/4
+                              (angle freq)))]
+                    (vector-set! frequencies i (make-polar min-magnitude ang)))))
+    (let* [(j (- (vector-length frequencies) i))
+           (freq (vector-ref frequencies j))]
+          (when (< (magnitude freq) min-magnitude)
+                (let [(ang (if (= freq 0) 
+                               (- 0 pi/4)
+                               (angle freq)))]
+                     (vector-set! frequencies j (make-polar min-magnitude ang))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
 ;;;;;;;;     Utils
 ;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;
-;;; Ensures that the source of this coder is large enough to fit the payload
-;;; coder - the coder to test is big enough
-;;; size - the size of the payload which is to be encoded
-
-(define (ensure-destination-large-enough coder size)
-    (let [(maxsize (get-max-payload-size coder))]
-         (when (not (<= size maxsize))
-               (error 'Failure (format "Payload is too large for the given audio carrier. Size: ~a bytes | Max Size: ~a bytes" size maxsize)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Returns a valid payload size that is possible to even fit in the given coder

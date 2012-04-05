@@ -22,7 +22,10 @@
 ;;; in-port - the port to read from
 
 (define (read-bytes-from-file amt in-port)
-    (read-bytes amt in-port))
+    (let [(bytes (read-bytes amt in-port))]
+         (if (= (bytes-length bytes) amt)
+             bytes
+             (error 'ERROR "Payload too large for target carrier"))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Writes the given bytes to the output port

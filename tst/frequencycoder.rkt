@@ -13,6 +13,7 @@
    (sanitize-samples-test)
    (page-frequencies-test)
    (write-current-frequencies-test)
+   (set-frequency-magnitude-order-test)
    (parse-frequencies-test)
    (page-samples-test)
    (write-current-samples-test)
@@ -67,6 +68,10 @@
 (define (write-current-frequencies-test)
    ;(write-current-frequencies coder)
    (display "No test cases for write-current-frequencies\n"))
+
+(define (set-frequency-magnitude-order-test)
+   ;(set-frequency-magnitude-order coder)
+   (display "No test cases for set-frequency-magnitude-order\n"))
 
 (define (parse-frequencies-test)
    ;(parse-frequencies coder)
