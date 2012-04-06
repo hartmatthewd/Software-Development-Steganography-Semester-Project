@@ -14,9 +14,9 @@
 (define min-magnitude 1000)
 
 ;;; Different temp files to use during encoding/decoding/testing
-(define tmpsrc "/tmp/stegosrc")
-(define tmpdest "/tmp/stegodest")
-(define tmptemp "/tmp/stegotemp.mp3")
+(define tmpsrc (path->string (make-temporary-file "~a")))
+(define tmpdest (path->string (make-temporary-file "~a")))
+(define tmptemp (path->string (make-temporary-file "~a.mp3")))
 
 ;;; Samples files to use with testing
 (define testwav "tst/testwav.wav")
