@@ -53,9 +53,11 @@
 ;;; encoder - the coder to encode the bit into
 
 (define (encode-bit bit encoder)
-    (let [(encode-func (lambda (frequencies i)
-                               (encode-bit-into-frequency frequencies bit i pi/4)
-                               (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i) -pi/4)))]
+    (let [(encode-func (lambda (frequencies indexes)
+                               (vector-map (lambda (i)
+                                                   (encode-bit-into-frequency frequencies bit i pi/4)
+                                                   (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i) -pi/4))
+                                           indexes)))]
          (code-next-frequency encoder encode-func)))
 
 ;;;;;;;;;;;;;;;;;;

@@ -6,7 +6,14 @@
 
 ;;; Which frequency components to encode/decode on (base 1)
 ;;; More components make more noise but allow for more encoding
-(define frequency-components-to-encode (vector 10 11 12 13))
+;;; Arranged as a vector of vectors 
+;;; vector[i][j]
+;;;   -- i - different bit in the same frame
+;;;   -- j - same bit striped across multiple components
+(define frequency-components-to-encode (vector (vector 10 11 12 13 14) 
+                                               (vector 15 16 17 18 19)
+                                               (vector 20 21 22 23 24)
+                                               (vector 25 26 27 28 29)))
 
 ;;; The minimum magnitude in which to encode a bit
 ;;; NOTE: The system will boost magnitudes to be encoded that are below this level to this level

@@ -43,10 +43,19 @@
 ;;; decoder - the coder where to find the hidden message
 
 (define (decode-next-byte decoder)
-    (let [(bits (make-vector 8))
-          (decode-func (lambda (frequencies i) (get-bit-from-frequency (vector-ref frequencies i))))]
-         (vector-map! (lambda (b) (code-next-frequency decoder decode-func)) bits)
+    (let [(bits (make-vector 8))]
+         (vector-map! (lambda (b) (code-next-frequency decoder decode-next-bit)) bits)
          (get-byte-from-bit-vector bits)))
+
+
+;;;;;;;;;;;;;;;;;
+(define (decode-next-bit frequencies indexes)
+    (let [(bits (make-vector (vector-length indexes)))]
+         (for [(i (vector-length indexes))]
+              (vector-set! bits i (get-bit-from-frequency (vector-ref frequencies (vector-ref indexes i)))))
+         (let [(zero 0) (one 0)]
+              (vector-map (lambda (x) (if (= 1 x) (set! one (add1 one)) (set! zero (add1 zero)))) bits)
+              (if (> one zero) 1 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
