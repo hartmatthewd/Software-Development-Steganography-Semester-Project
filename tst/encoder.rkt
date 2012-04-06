@@ -22,11 +22,10 @@
         (check-equal? (vector-ref v13 7) 1)))
 
 (define (encode-bit-into-frequency-test)
-   (let [(t (vector 0 1 2 3 4 3 2 1))]
-        (encode-bit-into-frequency t 0 1)
-        (encode-bit-into-frequency t 1 2)
-        (check-equal? t 
-                      (vector 0 
-                              (get-shifted-frequency 1 0) 
-                              (get-shifted-frequency 2 1) 
-                              3 4 3 2 1))))
+   (let [(t (vector 0 1 2 3 4 3 2 1))
+         (y (vector 0 (get-shifted-frequency 1 0) (get-shifted-frequency 2 1) 3 4 3 2 1))]
+        (encode-bit-into-frequency t 0 1 pi/4)
+        (encode-bit-into-frequency t 1 2 pi/4)
+        (maybe-boost-frequency y 1 pi/4)
+        (maybe-boost-frequency y 2 pi/4)
+        (check-equal? t y)))

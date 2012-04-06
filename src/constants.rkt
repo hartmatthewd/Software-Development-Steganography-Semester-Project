@@ -42,3 +42,4 @@
 (define 3pi/2 (/ (* 3 pi) 2))
 (define 2pi (* 2 pi))
 (define i2pi (* 2.0 pi +1.0i))
+(define -pi/4 (- 0 pi/4))

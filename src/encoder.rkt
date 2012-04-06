@@ -54,8 +54,8 @@
 
 (define (encode-bit bit encoder)
     (let [(encode-func (lambda (frequencies i)
-                               (encode-bit-into-frequency frequencies bit i)
-                               (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i))))]
+                               (encode-bit-into-frequency frequencies bit i pi/4)
+                               (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i) -pi/4)))]
          (code-next-frequency encoder encode-func)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -65,8 +65,18 @@
 ;;; bit - the bit to encode
 ;;; i - the index of the frequencies to encode the given bit into 
 
-(define (encode-bit-into-frequency frequencies bit i)
+(define (encode-bit-into-frequency frequencies bit i default-boost-angle)
+    (maybe-boost-frequency frequencies i default-boost-angle)
     (vector-set! frequencies i (get-shifted-frequency (vector-ref frequencies i) bit)))
+
+;;;;;;;;;;;;;;;;;
+(define (maybe-boost-frequency frequencies i default-boost-angle)
+    (let [(freq (vector-ref frequencies i))]
+         (when (< (magnitude freq) min-magnitude)
+               (let [(ang (if (= freq 0)
+                              default-boost-angle
+                              (angle freq)))]
+                    (vector-set! frequencies i (make-polar min-magnitude ang))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;

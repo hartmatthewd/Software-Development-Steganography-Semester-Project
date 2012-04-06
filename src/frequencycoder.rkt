@@ -81,25 +81,7 @@
     (set-coder-overtone! coder (add1 (coder-overtone coder)))
     (when (= (coder-overtone coder) (vector-length frequency-components-to-encode))
           (page-frequencies coder))
-    (let* [(i (vector-ref frequency-components-to-encode (coder-overtone coder)))]
-           (maybe-boost-frequency (coder-frequencies coder) i)
-           (func (coder-frequencies coder) i)))
-
-;;;;;;;;;;;;;;;;;
-(define (maybe-boost-frequency frequencies i)
-    (let [(freq (vector-ref frequencies i))]
-         (when (< (magnitude freq) min-magnitude)
-               (let [(ang (if (= freq 0) 
-                              pi/4
-                              (angle freq)))]
-                    (vector-set! frequencies i (make-polar min-magnitude ang)))))
-    (let* [(j (- (vector-length frequencies) i))
-           (freq (vector-ref frequencies j))]
-          (when (< (magnitude freq) min-magnitude)
-                (let [(ang (if (= freq 0) 
-                               (- 0 pi/4)
-                               (angle freq)))]
-                     (vector-set! frequencies j (make-polar min-magnitude ang))))))
+    (func (coder-frequencies coder) (vector-ref frequency-components-to-encode (coder-overtone coder))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;
