@@ -1,3 +1,51 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; wavfile.rkt
+;
+; Wrapper around a wave file knowing and handling all the
+; all the detail around reading from and writing to wave
+; files
+;
+; To create a wavfile, use the following method:
+;
+;     (file->wavfile src)
+;
+;         src - path to a wave file
+;
+; Header information should be automtically read into the
+; structure however samples should be manually requested
+; via the following method. Note that the number of samples
+; returned by each call is determined by the value of
+; samples-per-fft in constants.rkt
+;
+;     (read-samples wav)
+;
+;         wav - the wavfile who's next samples to retrieve
+;
+; When encoding, clients will also have the use the following
+; command to write wave header, write the next set of samples,
+; and pipe through any remaining bytes (respectively).
+;
+;     (write-wavfile-header wav output)
+;
+;         wav    - the wavfile who's header to write
+;         output - the output port to write to
+;
+;     (write-samples samples wav output)
+;
+;         samples - a vector of samples to write
+;         wav     - the wavfile who's samples the passed
+;                   samples represent
+;         output  - the output port to write to
+;
+;     (pipe-remaining-wavfile-bytes wav output)
+;
+;         wav    - the wavfile to read the remaining
+;                  bytes from
+;         output - the output port to write to
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (load "src/fileio.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

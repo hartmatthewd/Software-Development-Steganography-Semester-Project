@@ -1,3 +1,23 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; decoder.rkt
+;
+; Entry level file for decoding a payload out of a wave
+; or mp3 file.
+;
+; To decode, users should use the method:
+;
+;     (decode-payload-from-carrier carrier output)
+;
+;         carrier - file path of a wave or mp3 file containing
+;                   an encoded message
+;         output  - file path of where to write the decoded
+;                   message
+;
+; No other public methods are required for decoding
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
 (load "src/frequencycontroller.rkt")
@@ -66,7 +86,7 @@
 ; inputs
 ;     frequencies (vector?) - a vector of frequencies to where to decode the next bit from
 ;     indexes (vector?) - a vector of indexes corresponding to the frequencies vector of where to decode the next bit.
-;	  See frequency-components-to-encode in constants.rkt for more info
+;                         See frequency-components-to-encode in constants.rkt for more info
 ; outputs
 ;     real? (1 or 0)
 

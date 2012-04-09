@@ -1,3 +1,25 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; encoder.rkt
+;
+; Entry level file for encoding a payload into a wave
+; or mp3 file.
+;
+; To encode, users should use the method:
+;
+;     (encode-payload-into-carrier carrier payload output)
+;
+;         carrier - file path of the wave or mp3 file to encode
+;                   the payload into
+;         payload - file path of the payload to encode into the
+;                   the carrier
+;         output  - file path of where to output the carrier
+;                   after the payload has been encoded
+;
+; No other public methods are required for encoding
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (load "src/requirements.rkt")
 (load "src/constants.rkt")
 (load "src/frequencycontroller.rkt")

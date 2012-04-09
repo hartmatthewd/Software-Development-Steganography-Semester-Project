@@ -1,8 +1,66 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; frequencycontroller.rkt
+;
+; Controller to determine where to encode/decode bits
+; from/to. Encoders/decoders should interface solely with 
+; a controller instead of trying to interact directly with
+; a wavfile.
+;
+; To encode 
+;
+;     Encoders should use first create a controller
+;     via the following command:
+;
+;         (make-encoder src dest size)
+;         
+;             src  - file path of the carrier to encode into
+;             dest - file path of where to write the encoded
+;                    carrier to
+;             size - size of the payload which is to be encoded
+;                    into the carrier
+;
+;     Encoders should then use the following method to
+;     encode each bit:
+;
+;         (code-next-frequency controller func)
+;
+;             controller - the controller to encode into
+;             func       - the encoding function in the
+;                          format (vector? real? -> void)
+;
+;     Encoders will need to finalize the controller before
+;     returning with the following method:
+;
+;         (finalize-controller controller)
+;
+;             controller - the controller to finalize
+;
+; To decode
+;
+;     Decoders should use first create a controller
+;     via the following command:
+;
+;         (make-decoder src)
+;         
+;             src  - file path of the carrier to decode
+;
+;     Decoders should then use the following method to
+;     decode each bit:
+;
+;         (code-next-frequency controller func)
+;
+;             controller - the controller to encode into
+;             func       - the decoding function in the
+;                          format (vector? real? -> void)
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (load "src/wavfile.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;     Frequency Coder
+;;     Frequency Controller
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
