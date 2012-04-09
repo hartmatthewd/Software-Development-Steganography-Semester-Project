@@ -10,8 +10,8 @@
    (load "tst/wavfile.rkt")
    (run-wavfile-tests)
 
-   (load "tst/frequencycoder.rkt")
-   (run-frequencycoder-tests)
+   (load "tst/frequencycontroller.rkt")
+   (run-frequencycontroller-tests)
 
    (load "tst/encoder.rkt")
    (run-encoder-tests)

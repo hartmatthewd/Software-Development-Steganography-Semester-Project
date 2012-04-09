@@ -3,7 +3,7 @@
 
     (file->wavfile-test)
     (finalize-wavfile-test)
-    (create-wavfile-from-ports-test)
+    (create-wavfile-from-port-test)
     (create-wavfile-test)
     (read-wavfile-header-test)
     (write-wavfile-header-test)
@@ -23,7 +23,7 @@
 ;;;;;;;;;;;;;;;;;;
 ;;; Creates a wavfile for testing purposes
 (define (create-wavfile-for-testing endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize)
-        (create-wavfile null null null endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize))
+        (create-wavfile null endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;; 1 second of stereo audio, all samples are 0
@@ -41,13 +41,13 @@
    (display "No test cases for finalize-wavfile\n"))
 
 ;;;;;;;;;;;;;;;;;;
-(define (create-wavfile-from-ports-test)
-   ;(create-wavfile-from-ports in out dest)
-   (display "No test cases for create-wavfile-from-ports\n"))
+(define (create-wavfile-from-port-test)
+   ;(create-wavfile-from-port in)
+   (display "No test cases for create-wavfile-from-port\n"))
 
 ;;;;;;;;;;;;;;;;;;
 (define (create-wavfile-test)
-   (let [(wav (create-wavfile null null null 'little 1 2 44100 88200 4 16 44 176444))]
+   (let [(wav (create-wavfile null 'little 1 2 44100 88200 4 16 44 176444))]
         (check-equal? (wavfile-bytesperpage wav) 2048) ;;; 512 samples * 2 bytes * 2 channels
         (check-equal? (wavfile-endianess wav) 'little)
         (check-equal? (wavfile-audioformat wav) 1)

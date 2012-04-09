@@ -1,11 +1,11 @@
-(define (run-frequencycoder-tests)
-   (load "src/frequencycoder.rkt")
+(define (run-frequencycontroller-tests)
+   (load "src/frequencycontroller.rkt")
 
-   (make-decoder-test)
    (make-encoder-test)
-   (make-coder-test)
-   (initialize-coder-test)
-   (finalize-coder-test)
+   (make-decoder-test)
+   (make-controller-test)
+   (initialize-controller-test)
+   (finalize-controller-test)
    (code-next-frequency-test)
    (ensure-destination-large-enough-test)
    (validate-payload-size-test)
@@ -19,40 +19,40 @@
    (write-current-samples-test)
    (get-next-samples-test))
 
-(define (make-decoder-test)
-   ;(make-decoder src)
-   (display "No test cases for make-decoder\n"))
-
 (define (make-encoder-test)
-   ;(make-encoder src dest len)
+   ;(make-encoder src)
    (display "No test cases for make-encoder\n"))
 
-(define (make-coder-test)
-   ;(make-coder src dest)
-   (display "No test cases for make-coder\n"))
+(define (make-decoder-test)
+   ;(make-decoder src dest len)
+   (display "No test cases for make-decoder\n"))
 
-(define (initialize-coder-test)
-   ;(initialize-coder coder)
-   (display "No test cases for initialize-coder\n"))
+(define (make-controller-test)
+   ;(make-controller src dest)
+   (display "No test cases for make-controller\n"))
 
-(define (finalize-coder-test)
-   ;(finalize-coder coder)
-   (display "No test cases for finalize-coder\n"))
+(define (initialize-controller-test)
+   ;(initialize-controller controller)
+   (display "No test cases for initialize-controller\n"))
+
+(define (finalize-controller-test)
+   ;(finalize-controller controller)
+   (display "No test cases for finalize-controller\n"))
 
 (define (code-next-frequency-test)
-   ;(code-next-frequency coder func)
+   ;(code-next-frequency controller func)
    (display "No test cases for code-next-frequency\n"))
 
 (define (ensure-destination-large-enough-test)
-   ;(ensure-destination-large-enough coder size)
+   ;(ensure-destination-large-enough controller size)
    (display "No test cases for ensure-destination-large-enough\n"))
 
 (define (validate-payload-size-test)
-   ;(validate-payload-size coder size)
+   ;(validate-payload-size controller size)
    (display "No test cases for validate-payload-size\n"))
 
 (define (get-max-payload-size-test)
-   ;(get-max-payload-size coder)
+   ;(get-max-payload-size controller)
    (display "No test cases for get-max-payload-size\n"))
 
 (define (sanitize-samples-test)
@@ -62,29 +62,29 @@
                  (vector 154 32767 -32768 -343 5)))
 
 (define (page-frequencies-test)
-   ;(page-frequencies coder)
+   ;(page-frequencies controller)
    (display "No test cases for page-frequencies\n"))
 
 (define (write-current-frequencies-test)
-   ;(write-current-frequencies coder)
+   ;(write-current-frequencies controller)
    (display "No test cases for write-current-frequencies\n"))
 
 (define (set-frequency-magnitude-order-test)
-   ;(set-frequency-magnitude-order coder)
+   ;(set-frequency-magnitude-order controller)
    (display "No test cases for set-frequency-magnitude-order\n"))
 
 (define (parse-frequencies-test)
-   ;(parse-frequencies coder)
+   ;(parse-frequencies controller)
    (display "No test cases for parse-frequencies\n"))
 
 (define (page-samples-test)
-   ;(page-samples coder)
+   ;(page-samples controller)
    (display "No test cases for page-samples\n"))
 
 (define (write-current-samples-test)
-   ;(write-current-samples coder)
+   ;(write-current-samples controller)
    (display "No test cases for write-current-samples\n"))
 
 (define (get-next-samples-test)
-   ;(get-next-samples coder)
+   ;(get-next-samples controller)
    (display "No test cases for get-next-samples\n"))

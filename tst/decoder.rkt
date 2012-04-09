@@ -23,8 +23,9 @@
    ;(angle-is-one? x)
    (check-equal? (angle-is-one? 0) true)
    (check-equal? (angle-is-one? pi/2) true)
+   (check-equal? (angle-is-one? (- 0 pi/2)) true)
    (check-equal? (angle-is-one? pi) true)
-   (check-equal? (angle-is-one? 3pi/2) true)
+   (check-equal? (angle-is-one? (- 0 pi)) true)
    (check-equal? (angle-is-one? 0.5234) false)
    (check-equal? (angle-is-one? 1.1293) false))
 
