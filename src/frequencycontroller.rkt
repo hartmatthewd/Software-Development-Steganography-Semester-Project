@@ -3,7 +3,7 @@
 ; frequencycontroller.rkt
 ;
 ; Controller to determine where to encode/decode bits
-; from/to. Encoders/decoders should interface solely with 
+; to/from. Encoders/decoders should interface solely with 
 ; a controller instead of trying to interact directly with
 ; a wavfile.
 ;

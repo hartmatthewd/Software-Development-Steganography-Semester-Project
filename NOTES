@@ -1,0 +1,91 @@
+=======================
+====== Algorithm ======
+=======================
+
+    The algorithm used in this project is a form of Quanitzed Index Modulation Phase Encoding as described in the article entitled "Data Hiding Via Phase Manipulation of Audio Signals" by Xiaoxiao Dong, Mark F. Bocko, and Zeljko Ignjatovic <http://ispl.korea.ac.kr/conference/ICASSP2004/pdfs/0500377.pdf>.
+
+    Encoding is performed by employing the following steps:
+
+        1. The audio carrier is split up into numerous sections, each of an equal number of samples, called frames
+        2. Each frame is converted from time domain into frequency domain
+        3. Certain frequency components are selected and phase quantized according to one of two schemes depending on where a one or zero is to be encoded. Effectively, the phase of each components is shifted to the closest point from a set collection of points according to whether it will be a one or zero. The collection of points are as follows:
+
+                        -Phase-                        -Bit-
+
+                         -π/π                            1
+                 -3π/4     *      3π/4           0       *       0
+                     *     *     *                 *     *     *
+                       *   *   *                     *   *   *
+                         * * *                         * * *
+              -π/2 * * * * * * * * * π/2       1 * * * * * * * * * 1
+                         * * *                         * * *
+                       *   *   *                     *   *   *
+                     *     *     *                 *     *     *
+                 -π/4      *      π/4            0       *       0
+                           0                             1
+
+        4. After encoding, the samples are converted back into time domain and then written into the output file.
+        5. Repeat steps 2-4 for each bit to be encoded, one or more per each frame
+
+    Decoding is performed in much of the same manner. The samples are again broken up into frames, converted to frequency domain, and certain components are selected. The phase of the components are then compared against the collection described about with a tollerance of π/8 to determine which bit was encoded. 
+
+
+=======================
+======== Files ========
+=======================
+
+    The following is a list of the various modules, along with a brief description of their role
+
+    1. constants.rkt
+
+        A collection of various settings used in the system. See file for setting descriptions.
+
+    2. decoder.rkt
+
+        Entry point for decoding a payload out of a wave or mp3 file.
+
+    3. encoder.rkt
+
+        Entry point for encoding a payload into a wave or mp3 file.
+
+    4. fileio.rkt
+
+        Contains various methods for accessing the file system.
+
+    5. frequencycontroller.rkt
+
+        Controller to determine in which frequencies/components to encode/decode bits to/from.
+
+    6. requirements.rkt
+
+        Collection of required r6rs libraries used by the project.
+
+    7. wavfile.rkt
+
+        Wrapper around a wave file knowing and handling all the all the detail around reading from and writing to wave files.
+
+    8. stego
+
+        A script for users to utilize when encoding/decoding. See README for more details.
+
+=======================
+==== Architecture =====
+=======================
+
+    The system architecture is set up as follows:
+
+    +---------------------------------------+
+    |                 stego                 |
+    +-------------------+-------------------+
+    |      encoder      |      decoder      |
+    +-----+-------------+-------------+-----+
+          |   frequency controller    |
+          +---------------------------+
+          |          wavfile          |
+    +-----+---------------------------+-----+
+    |                fileio                 |
+    +---------------------------------------+
+    |              file system              |
+    +---------------------------------------+
+
+    With the exception of reading and writing of the payload (which is performed by the encoder and decoder calling on fileio), each module should only recieve calls from the module directly above it and only make calls the the module directly below it. 
