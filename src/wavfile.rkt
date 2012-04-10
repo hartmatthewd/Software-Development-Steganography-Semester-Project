@@ -277,12 +277,6 @@
          (div (- (wavfile-chunksize wav) (* 4 bytes-per-byte))
               bytes-per-byte)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Locals
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;
 ; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel in the given wav
 ; inputs
