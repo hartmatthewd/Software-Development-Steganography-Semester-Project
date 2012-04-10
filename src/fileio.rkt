@@ -12,7 +12,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;     File I/O
+;;     Constructors/Finalizers
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -35,6 +35,32 @@
 
 (define (open-file-output-port file)
     (open-output-file file #:mode 'binary #:exists 'replace))
+
+;;;;;;;;;;;;;;;;;;
+; Flush and close the given input port
+; inputs
+;     input (input-port?) - the input port to finalize
+; ouputs
+;     void
+
+(define (finalize-input-port input)
+    (close-input-port input))
+
+;;;;;;;;;;;;;;;;;;
+; Flush and close the given output port
+; inputs
+;     output (output-port?) - the output port to finalize
+; ouputs
+;     void
+
+(define (finalize-output-port output)
+    (close-output-port output))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;     File I/O
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
 ; Read the given amount of bytes from the given input port
@@ -83,26 +109,6 @@
 
 (define (bytes->file bytes file)
     (display-to-file bytes file #:mode 'binary #:exists 'replace))
-
-;;;;;;;;;;;;;;;;;;
-; Flush and close the given input port
-; inputs
-;     input (input-port?) - the input port to finalize
-; ouputs
-;     void
-
-(define (finalize-input-port input)
-    (close-input-port input))
-
-;;;;;;;;;;;;;;;;;;
-; Flush and close the given output port
-; inputs
-;     output (output-port?) - the output port to finalize
-; ouputs
-;     void
-
-(define (finalize-output-port output)
-    (close-output-port output))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                         

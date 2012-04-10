@@ -144,6 +144,12 @@
              (is-same-angle? a pi/2)
              (is-same-angle? a pi))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;     Utils
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;
 ; Given a vector of bits of length 8, returns a byte whos bits match those in the vector
 ; inputs

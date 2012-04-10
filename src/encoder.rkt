@@ -110,23 +110,6 @@
     (maybe-boost-frequency frequencies i default-boost-angle)
     (vector-set! frequencies i (get-shifted-frequency (vector-ref frequencies i) bit)))
 
-;;;;;;;;;;;;;;;;;
-; Maybe boost the magnitude of the frequency at index i in the frequencies vector if it is outside a set range
-; inputs
-;     frequencies (vector?) - a vector of frequencies
-;     i (real?) - an index of the frequencies vector corresponding to which frequency to possibly boost
-;     default-boost-angle (real?) - if the frequency to boost in currently 0, the default angle to set it to when it is boosted
-; outputs
-;     void
-
-(define (maybe-boost-frequency frequencies i default-boost-angle)
-    (let [(freq (vector-ref frequencies i))]
-         (when (< (magnitude freq) min-magnitude)
-               (let [(ang (if (= freq 0)
-                              default-boost-angle
-                              (angle freq)))]
-                    (vector-set! frequencies i (make-polar min-magnitude ang))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;     Encoding Functions
@@ -145,6 +128,30 @@
     (if (= bit 0)
         (make-polar (magnitude frequency) (+ (* pi/2 (round (- (/ (angle frequency) pi/2) 0.5))) (/ pi/2 2)))
         (make-polar (magnitude frequency) (* pi/2 (round (/ (angle frequency) pi/2))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;     Utils
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;
+; Maybe boost the magnitude of the frequency at index i in the frequencies vector if it is outside a set range
+; inputs
+;     frequencies (vector?) - a vector of frequencies
+;     i (real?) - an index of the frequencies vector corresponding to which frequency to possibly boost
+;     default-boost-angle (real?) - if the frequency to boost in currently 0, the default angle to set it to when it is boosted
+; outputs
+;     void
+
+(define (maybe-boost-frequency frequencies i default-boost-angle)
+    (let [(freq (vector-ref frequencies i))]
+         (when (< (magnitude freq) min-magnitude)
+               (let [(ang (if (= freq 0)
+                              default-boost-angle
+                              (angle freq)))]
+                    (vector-set! frequencies i (make-polar min-magnitude ang))))))
+
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a byte, return a vector whos elements are the individual bits of the byte
