@@ -96,7 +96,8 @@
 							(if (= 1 (get-bit-from-frequency (vector-ref frequencies (vector-ref indexes i))))
 							    (set! one (add1 one)) 
 								  (set! zero (add1 zero))))
-         (if (> one zero) 1 0)))
+         ; Ties go to 1 to ensure full message is always decoded
+         (if (>= one zero) 1 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
