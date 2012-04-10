@@ -2,13 +2,18 @@
 ====== Algorithm ======
 =======================
 
-    The algorithm used in this project is a form of Quanitzed Index Modulation Phase Encoding as described in the article entitled "Data Hiding Via Phase Manipulation of Audio Signals" by Xiaoxiao Dong, Mark F. Bocko, and Zeljko Ignjatovic <http://ispl.korea.ac.kr/conference/ICASSP2004/pdfs/0500377.pdf>.
+    The algorithm used in this project is a form of Quanitzed Index Modulation Phase Encoding as described 
+    in the article entitled "Data Hiding Via Phase Manipulation of Audio Signals" by Xiaoxiao Dong, 
+    Mark F. Bocko, and Zeljko Ignjatovic <http://ispl.korea.ac.kr/conference/ICASSP2004/pdfs/0500377.pdf>.
 
     Encoding is performed by employing the following steps:
 
         1. The audio carrier is split up into numerous sections, each of an equal number of samples, called frames
         2. Each frame is converted from time domain into frequency domain
-        3. Certain frequency components are selected and phase quantized according to one of two schemes depending on where a one or zero is to be encoded. Effectively, the phase of each components is shifted to the closest point from a set collection of points according to whether it will be a one or zero. The collection of points are as follows:
+        3. Certain frequency components are selected and phase quantized according to one of two schemes depending 
+           on where a one or zero is to be encoded. Effectively, the phase of each components is shifted to the 
+           closest point from a set collection of points according to whether it will be a one or zero. The 
+           collection of points are as follows:
 
                         -Phase-                        -Bit-
 
@@ -27,7 +32,9 @@
         4. After encoding, the samples are converted back into time domain and then written into the output file.
         5. Repeat steps 2-4 for each bit to be encoded, one or more per each frame
 
-    Decoding is performed in much of the same manner. The samples are again broken up into frames, converted to frequency domain, and certain components are selected. The phase of the components are then compared against the collection described about with a tollerance of π/8 to determine which bit was encoded. 
+    Decoding is performed in much of the same manner. The samples are again broken up into frames, converted to 
+    frequency domain, and certain components are selected. The phase of the components are then compared against 
+    the collection described about with a tollerance of π/8 to determine which bit was encoded. 
 
 
 =======================
@@ -62,7 +69,8 @@
 
     7. wavfile.rkt
 
-        Wrapper around a wave file knowing and handling all the all the detail around reading from and writing to wave files.
+        Wrapper around a wave file knowing and handling all the all the detail around reading from and 
+        writing to wave files.
 
     8. stego
 
@@ -88,4 +96,6 @@
     |              file system              |
     +---------------------------------------+
 
-    With the exception of reading and writing of the payload (which is performed by the encoder and decoder calling on fileio), each module should only recieve calls from the module directly above it and only make calls the the module directly below it. 
+    With the exception of reading and writing of the payload (which is performed by the encoder and decoder 
+    calling on fileio), each module should only recieve calls from the module directly above it and only make 
+    calls the the module directly below it. 
