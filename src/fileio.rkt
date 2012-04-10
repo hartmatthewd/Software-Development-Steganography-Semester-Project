@@ -159,7 +159,8 @@
                   (= firsttwo 65506))))) ;0xFFE2 MP3 v2.5
 
 ;;;;;;;;;;;;;;;;;;
-; Given an input wav file and an output mp3 path, convert the wav to mp3 via the LAME encoder and output it at the given mp3 output path
+; Given an input wav file and an output mp3 path, convert the wav to mp3 via the LAME encoder and output it at 
+;     the given mp3 output path
 ; inputs
 ;     wav (string?) - the wav to convert to mp3
 ;     mp3 (string?) - the path where to place the converted wav
@@ -172,7 +173,8 @@
               (error 'ERROR (string-append "Lame encoder returned an error on command: " cmd)))))
 
 ;;;;;;;;;;;;;;;;;;
-; Given an input mp3 file and an output wav path, convert the mp3 to wav via the LAME encoder and output it at the given wav output path
+; Given an input mp3 file and an output wav path, convert the mp3 to wav via the LAME encoder and output it at the 
+;     given wav output path
 ; inputs
 ;     mp3 (string?) - the mp3 to convert to wav
 ;     wav (string?) - the path where to place the converted mp3

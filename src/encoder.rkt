@@ -31,7 +31,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;
-; Given a payload, a carrier file, and an output file, encode the payload into the carrier and write it to the output file
+; Given a payload, a carrier file, and an output file, encode the payload into the carrier and write it 
+;     to the output file
 ; inputs
 ;     payload (string?) - path to the payload to encode
 ;     carrier (string?) - path to the .wav or .mp3 file to encode the payload into
@@ -89,12 +90,18 @@
 ;     void
 
 (define (encode-bit bit controller)
-    (let [(encode-func (lambda (frequencies indexes)
-                               (vector-map (lambda (i)
-                                                   (encode-bit-into-frequency frequencies bit i pi/4)
-                                                   (encode-bit-into-frequency frequencies bit (- (vector-length frequencies) i) -pi/4))
-                                           indexes)))]
-         (code-next-frequency controller encode-func)))
+    (code-next-frequency controller 
+                         (lambda (frequencies indexes)
+                                 (vector-map (lambda (i)
+                                                     (encode-bit-into-frequency frequencies 
+                                                                                bit 
+                                                                                i 
+                                                                                pi/4)
+                                                     (encode-bit-into-frequency frequencies 
+                                                                                bit 
+                                                                                (- (vector-length frequencies) i)
+                                                                                -pi/4))
+                                             indexes))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a vector or frequencies in the frequency domain, a bit to encode, and an index of a frequency in the vector,
@@ -140,7 +147,8 @@
 ; inputs
 ;     frequencies (vector?) - a vector of frequencies
 ;     i (real?) - an index of the frequencies vector corresponding to which frequency to possibly boost
-;     default-boost-angle (real?) - if the frequency to boost in currently 0, the default angle to set it to when it is boosted
+;     default-boost-angle (real?) - if the frequency to boost in currently 0, the default angle to set it to when 
+;                                   it is boosted
 ; outputs
 ;     void
 

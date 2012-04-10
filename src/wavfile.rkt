@@ -68,7 +68,8 @@
 ; chunkstart (real?) - the start of the data segment in bytes
 ; chunksize (real?) - the size of the data segment in bytes
 
-(struct wavfile (input bytesperpage endianess audioformat channels samplerate byterate blockalign bytespersample chunkstart chunksize))
+(struct wavfile (input bytesperpage endianess audioformat channels samplerate 
+                 byterate blockalign bytespersample chunkstart chunksize))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -278,7 +279,8 @@
               bytes-per-byte)))
 
 ;;;;;;;;;;;;;;;;;;
-; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel in the given wav
+; Given a channel and a wavfile, return the very first byte to start writing or reading to/from that channel 
+;     in the given wav
 ; inputs
 ;     channel (real?) - the channel that will be operated on
 ;     wav (wavfile?) - the wavfile whos starting data byte to find

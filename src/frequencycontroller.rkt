@@ -73,7 +73,8 @@
 ; frequencies (vector?) - the given samples vector in frequency domain 
 ; samples (vector?) - the vector of samples to encode to/decode from
 
-(struct controller (output dest wavfile [overtone #:mutable] [channel #:mutable] [frequencies #:mutable] [samples #:mutable]))
+(struct controller (output dest wavfile [overtone #:mutable] [channel #:mutable] 
+                                        [frequencies #:mutable] [samples #:mutable]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -94,7 +95,8 @@
                
 
 ;;;;;;;;;;;;;;;;;;
-; Returns an encoder for the given carrier, who will output to the given destination, and whos payload will be of the given length
+; Returns an encoder for the given carrier, who will output to the given destination, and whos payload will be 
+;     of the given length
 ; inputs
 ;     src (string?) - the source file to decode from
 ;     dest (string?) - the path to the file to output the encoded message to
@@ -161,7 +163,8 @@
     (set-controller-overtone! controller (add1 (controller-overtone controller)))
     (when (= (controller-overtone controller) (vector-length frequency-components-to-encode))
           (page-frequencies controller))
-    (func (controller-frequencies controller) (vector-ref frequency-components-to-encode (controller-overtone controller))))
+    (func (controller-frequencies controller) (vector-ref frequency-components-to-encode 
+                                                          (controller-overtone controller))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -190,7 +193,9 @@
 ;     void
 
 (define (write-current-frequencies controller)
-    (vector-set! (controller-samples controller) (controller-channel controller) (sanitize-samples (fft-inverse (controller-frequencies controller)))))
+    (vector-set! (controller-samples controller) 
+                 (controller-channel controller) 
+                 (sanitize-samples (fft-inverse (controller-frequencies controller)))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Parse the given controllers samples into its frequencies
@@ -200,7 +205,8 @@
 ;     void
 
 (define (parse-frequencies controller)
-    (set-controller-frequencies! controller (fft (vector-ref (controller-samples controller) (controller-channel controller)))))
+    (set-controller-frequencies! controller 
+                                 (fft (vector-ref (controller-samples controller) (controller-channel controller)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -231,7 +237,9 @@
 
 (define (write-current-samples controller)
     (when (is-encoder? controller)
-          (write-samples (controller-samples controller) (controller-wavfile controller) (controller-output controller))))
+          (write-samples (controller-samples controller) 
+                         (controller-wavfile controller) 
+                         (controller-output controller))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Sets the given controller's samples to the next set of samples according to the controller's wavfile
