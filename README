@@ -5,8 +5,6 @@ Heinz    Pabst   pabst.h@neu.edu
 John     Reda    reda.jo@neu.edu
 Eliott   Wiener  wiener.e@neu.edu
 
-Runs with WAVE files. Stereo. 44100Hz sample rate. 16 bits per sample. RIFF format.
-
 No compilation necessary. Unpack the .tar.gz and run with the syntax specified below from the project folder.
 
 For encoding:
