@@ -139,7 +139,6 @@
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a path to a file, determine if the file represents a .mp3 file.
-;     This is a pretty simplistic checking method. It only works for MP3s with ID3 metadata tags.
 ; inputs
 ;     file (string?) - the path to a file to test
 ; ouputs
