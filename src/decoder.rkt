@@ -91,12 +91,12 @@
 ;     real? (1 or 0)
 
 (define (decode-next-bit frequencies indexes)
-    (let [(bits (make-vector (vector-length indexes)))]
+    (let [(zero 0) (one 0)]
          (for [(i (vector-length indexes))]
-              (vector-set! bits i (get-bit-from-frequency (vector-ref frequencies (vector-ref indexes i)))))
-         (let [(zero 0) (one 0)]
-              (vector-map (lambda (x) (if (= 1 x) (set! one (add1 one)) (set! zero (add1 zero)))) bits)
-              (if (> one zero) 1 0))))
+							(if (= 1 (get-bit-from-frequency (vector-ref frequencies (vector-ref indexes i))))
+							    (set! one (add1 one)) 
+								  (set! zero (add1 zero))))
+         (if (> one zero) 1 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
