@@ -44,8 +44,11 @@
     (let* [(payload-bytes (file->bytes payload))
            (controller (make-encoder carrier output (bytes-length payload-bytes)))]
           (encode-payload-size payload-bytes controller)
-          (encode-bytes payload-bytes controller)
-          (finalize-controller controller)))
+          (with-handlers [(is-reraised-max-pages-exceeded?
+                           (lambda (x) (display-amt-encoded (vector-ref x 1)
+                                                            (vector-ref x 2))))]
+                         (encode-bytes payload-bytes controller)
+                         (finalize-controller controller))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a bytestring payload and a controller, encode the payload size into the controller
@@ -56,7 +59,9 @@
 ;     void
 
 (define (encode-payload-size payload controller)
-    (encode-bytes (integer->integer-bytes (bytes-length payload) 4 #f 'little) controller))
+    (with-handlers [(is-reraised-max-pages-exceeded?
+                     (lambda (x) (error 'ERROR "Cannot encode payload. Carrier not large enough")))]
+                   (encode-bytes (integer->integer-bytes (bytes-length payload) 4 #f 'little) controller)))
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a bytestring payload and a controller, encode the payload into the controller
@@ -68,7 +73,9 @@
 
 (define (encode-bytes payload controller)
     (for [(p (bytes-length payload))]
-         (encode-byte (bytes-ref payload p) controller)))
+         (with-handlers [((lambda (x) (eq? max-pages-exceeded x))
+                          (lambda (x) (raise (vector max-pages-exceeded p (bytes-length payload)))))]
+                        (encode-byte (bytes-ref payload p) controller))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Given a byte and a controller encode the byte into the controller at some frequency
@@ -143,6 +150,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;
+; Informs the user of the amount of bytes that were encoded but does not error
+; inputs
+;     amt (real?) - the amount of bytes that were encoded
+;     total (real?) - the total number of bytes to be encoded
+; outputs
+;     void
+
+(define (display-amt-encoded amt total)
+    (let [(pct (round (* 100 (/ amt total))))]
+         (display (string-append "Could not encode entire payload. Encoded "
+                                 (number->string pct)
+                                 "% of bytes\n"))))
+
+;;;;;;;;;;;;;;;;;
 ; Maybe boost the magnitude of the frequency at index i in the frequencies vector if it is outside a set range
 ; inputs
 ;     frequencies (vector?) - a vector of frequencies
@@ -174,3 +195,14 @@
         [(< i 0)]
         (vector-set! v i (bitwise-and b 1)))
     v))
+
+;;;;;;;;;;;;;;;;;;
+; Determine if the given exception is a raised max-pages-exceeded exception
+; inputs
+;     x (exception?) - the exception to test
+; outputs
+;     boolean?
+
+(define (is-reraised-max-pages-exceeded? x)
+    (and (vector? x)
+         (eq? max-pages-exceeded (vector-ref x 0))))

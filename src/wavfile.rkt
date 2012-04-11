@@ -69,7 +69,7 @@
 ; chunksize (real?) - the size of the data segment in bytes
 
 (struct wavfile (input bytesperpage endianess audioformat channels samplerate 
-                 byterate blockalign bytespersample chunkstart chunksize))
+                 byterate blockalign bytespersample chunkstart chunksize max-pages [pages #:mutable]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -117,8 +117,9 @@
 (define (create-wavfile in e af c sr br ba bps s cs)
     (let* [(bytes-per-sample (/ bps 8))
            (chunk-size (- cs s))
-           (bytes-per-page (* bytes-per-sample c samples-per-fft))]
-          (wavfile in bytes-per-page e af c sr br ba bytes-per-sample s chunk-size)))
+           (bytes-per-page (* bytes-per-sample c samples-per-fft))
+           (max-pages (div chunk-size bytes-per-page))]
+          (wavfile in bytes-per-page e af c sr br ba bytes-per-sample s chunk-size max-pages 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -155,7 +156,10 @@
 ;     vector?
 
 (define (read-samples wav)
-    (bytes->samples (read-bytes-from-file (wavfile-bytesperpage wav) (wavfile-input wav)) wav))
+    (if (= (wavfile-pages wav) (wavfile-max-pages wav))
+        (raise max-pages-exceeded)
+        (begin (set-wavfile-pages! wav (add1 (wavfile-pages wav)))
+               (bytes->samples (read-bytes-from-file (wavfile-bytesperpage wav) (wavfile-input wav)) wav))))
 
 ;;;;;;;;;;;;;;;;;;
 ; Writes the given samples to the given wavfile

@@ -108,7 +108,7 @@
     (let* [(iswav (is-wav? src))
            (s (if iswav src (begin (mp3->wav src tmpsrc) tmpsrc)))
            (wav (file->wavfile s))]
-          (ensure-wavfile-large-enough wav size)
+          (when all-or-nothing (ensure-wavfile-large-enough wav size))
           (let* [(o (if iswav (open-file-output-port dest) (open-file-output-port tmpdest)))
                  (d (if iswav null dest))
                  (c (controller o d  wav -1 0 null null))]
@@ -139,6 +139,17 @@
     (when (is-encoder? controller)
           (write-current-frequencies controller)
           (write-current-samples controller)
+          (pipe-and-finish controller)))
+
+;;;;;;;;;;;;;;;;;;
+; Pipe the last of the wavfile bytes to the output and tie up any loose ends
+; inputs
+;     controller (controller?) - the controller to finsh up
+; outputs
+;     void
+
+(define (pipe-and-finish controller)
+    (when (is-encoder? controller)
           (pipe-remaining-wavfile-bytes (controller-wavfile controller) (controller-output controller))
           (when (not (null? (controller-dest controller)))
                 (wav->mp3 tmpdest (controller-dest controller)))))
@@ -249,7 +260,10 @@
 ;     void
 
 (define (set-next-samples controller)
-    (set-controller-samples! controller (read-samples (controller-wavfile controller))))
+    (with-handlers [((lambda (x) (eq? max-pages-exceeded x))
+                     (lambda (x) (pipe-and-finish controller)
+                                 (raise x)))]
+                   (set-controller-samples! controller (read-samples (controller-wavfile controller)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

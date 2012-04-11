@@ -222,7 +222,7 @@
 
 ;;;;;;;;;;;;;;;;;;
 (define (is-big-endian?-test)
-   (let [(big-one (create-wavfile-for-testing 'big 0 0 0 0 0 0 0 0))
-	 (not-big-one (create-wavfile-for-testing 'little 0 0 0 0 0 0 0 0))]
+   (let [(big-one (create-wavfile-for-testing 'big 1 2 44100 176400 4 16 44 176444))
+	 (not-big-one (create-wavfile-for-testing 'little 1 2 44100 176400 4 16 44 176444))]
 	(check-true (is-big-endian? big-one))
 	(check-false (is-big-endian? not-big-one))))
