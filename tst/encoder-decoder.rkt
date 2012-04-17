@@ -1,7 +1,4 @@
 (define (run-encoder-decoder-tests)
-    (load "src/encoder.rkt")
-    (load "src/decoder.rkt")
-
     (vector-map (lambda (x)
                         (display (string-append "Testing: " x))(newline)
                         (encode-payload-into-carrier x testpayload tmptemp)

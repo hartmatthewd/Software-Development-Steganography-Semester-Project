@@ -1,6 +1,4 @@
 (define (run-frequencycontroller-tests)
-   (load "src/frequencycontroller.rkt")
-
    (make-encoder-test)
    (make-decoder-test)
    (make-controller-test)

@@ -1,6 +1,4 @@
 (define (run-wavfile-tests)
-    (load "src/wavfile.rkt")
-
     (file->wavfile-test)
     (finalize-wavfile-test)
     (create-wavfile-from-port-test)

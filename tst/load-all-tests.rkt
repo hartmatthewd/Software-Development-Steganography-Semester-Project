@@ -1,24 +1,25 @@
 (require rackunit)
 
+(load-relative "../src/requirements.rkt")
+(load-relative "../src/constants.rkt")
+(load-relative "../src/fileio.rkt")
+(load-relative "../src/frequencycontroller.rkt")
+(load-relative "../src/wavfile.rkt")
+(load-relative "../src/encoder.rkt")
+(load-relative "../src/decoder.rkt")
+
+(load-relative "fileio.rkt")
+(load-relative "wavfile.rkt")
+(load-relative "frequencycontroller.rkt")
+(load-relative "encoder.rkt")
+(load-relative "decoder.rkt")
+(load-relative "encoder-decoder.rkt")
+
 (define (run-all-tests)
-   (load "src/requirements.rkt")
-   (load "src/constants.rkt")
-
-   (load "tst/fileio.rkt")
    (run-fileio-tests)
-
-   (load "tst/wavfile.rkt")
    (run-wavfile-tests)
-
-   (load "tst/frequencycontroller.rkt")
    (run-frequencycontroller-tests)
-
-   (load "tst/encoder.rkt")
    (run-encoder-tests)
-
-   (load "tst/decoder.rkt")
    (run-decoder-tests)
-
-   (load "tst/encoder-decoder.rkt")
    (run-encoder-decoder-tests)
-)
+   (void))

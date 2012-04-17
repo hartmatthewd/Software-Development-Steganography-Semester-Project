@@ -20,9 +20,9 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(load "src/requirements.rkt")
-(load "src/constants.rkt")
-(load "src/frequencycontroller.rkt")
+(load-relative "requirements.rkt")
+(load-relative "constants.rkt")
+(load-relative "frequencycontroller.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

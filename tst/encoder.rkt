@@ -1,6 +1,4 @@
 (define (run-encoder-tests)
-   (load "src/encoder.rkt")
-
    (get-shifted-frequency-test)
    (get-bits-from-byte-test)
    (encode-bit-into-frequency-test))

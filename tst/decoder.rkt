@@ -1,6 +1,4 @@
 (define (run-decoder-tests)
-   (load "src/decoder.rkt")
-
    (get-bit-from-frequency-test)
    (is-same-angle?-test)
    (angle-is-one?-test)

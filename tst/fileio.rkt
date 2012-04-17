@@ -1,7 +1,5 @@
 ;;;;;;;;;;;;;;;;;;
 (define (run-fileio-tests)
-   (load "src/fileio.rkt")
-
    (open-file-input-port-test)
    (open-file-output-port-test)
    (read-bytes-from-file-test)

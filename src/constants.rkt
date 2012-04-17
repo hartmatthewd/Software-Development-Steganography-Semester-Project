@@ -31,13 +31,17 @@
 (define tmpdest (path->string (make-temporary-file "~a")))
 (define tmptemp (path->string (make-temporary-file "~a.mp3"))) ; must end in .mp3
 
+; Returns the relative path between the current file and the given file
+(define (get-relative-path file)
+    (string-append (path->string (current-load-relative-directory)) file))
+
 ; Samples files to use with testing
-(define testwav "tst/testwav.wav")
-(define testwav-2 "tst/excerpt0.wav")
-(define testmp3 "tst/testmp3.mp3")
-(define testmp3-2 "tst/brobob.mp3")
-(define testmp3-3 "tst/classical.mp3")
-(define testpayload "tst/testpayload.txt")
+(define testwav (get-relative-path "../tst/testwav.wav"))
+(define testwav-2 (get-relative-path "../tst/excerpt0.wav"))
+(define testmp3 (get-relative-path "../tst/testmp3.mp3"))
+(define testmp3-2 (get-relative-path "../tst/brobob.mp3"))
+(define testmp3-3 (get-relative-path "../tst/classical.mp3"))
+(define testpayload (get-relative-path "../tst/testpayload.txt"))
 
 ; The percentage of bits that are allowed to be decoded incorrectly and still pass testing
 (define biterrorlimit 0.01)
