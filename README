@@ -23,3 +23,10 @@ For decoding:
         where
         <CARRIER> is the path of the audio file a payload hidden within it.
         <OUTPUT>  is the path where you want to write the payload to.
+
+Settings:
+
+    Settings are configurable via the settings.rkt file in the src directory. See file for descriptions of the various
+    settings.
+
+For more information on how the system works, see the NOTES file.

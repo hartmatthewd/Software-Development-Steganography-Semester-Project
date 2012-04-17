@@ -20,6 +20,7 @@
 
 (load-relative "requirements.rkt")
 (load-relative "constants.rkt")
+(load-relative "settings.rkt")
 (load-relative "frequencycontroller.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

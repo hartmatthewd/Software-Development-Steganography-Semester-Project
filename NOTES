@@ -45,7 +45,7 @@
 
     1. constants.rkt
 
-        A collection of various settings used in the system. See file for setting descriptions.
+        A collection of various constants used in the system. 
 
     2. decoder.rkt
 
@@ -72,7 +72,11 @@
         Wrapper around a wave file knowing and handling all the all the detail around reading from and 
         writing to wave files.
 
-    8. stego
+    8. settings.rkt
+
+        A collection of various settings used in the system. See file for setting descriptions.
+
+    9. stego
 
         A script for users to utilize when encoding/decoding. See README for more details.
 

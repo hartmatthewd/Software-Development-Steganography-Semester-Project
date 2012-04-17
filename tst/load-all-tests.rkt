@@ -2,6 +2,7 @@
 
 (load-relative "../src/requirements.rkt")
 (load-relative "../src/constants.rkt")
+(load-relative "../src/settings.rkt")
 (load-relative "../src/fileio.rkt")
 (load-relative "../src/frequencycontroller.rkt")
 (load-relative "../src/wavfile.rkt")
