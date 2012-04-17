@@ -22,7 +22,7 @@
 (define testpayload (get-relative-path "../tst/testpayload.txt"))
 
 ; The percentage of bits that are allowed to be decoded incorrectly and still pass testing
-(define biterrorlimit 0.01)
+(define biterrorlimit 0.015)
 
 ; An exception thrown when wavfile tries to read more bytes than are left in the file
 (define max-pages-exceeded 'max-pages-exceeded)

@@ -114,7 +114,9 @@
 ;     real? (1 or 0)
 
 (define (get-bit-from-frequency frequency)
-    (if (angle-is-one? (abs (angle frequency))) 1 0))
+    (if (= frequency 0)
+        1
+        (if (angle-is-one? (abs (angle frequency))) 1 0)))
 
 ;;;;;;;;;;;;;;;;;;
 ; The amount of error we allow for round off error in determining the phase of a frequency

@@ -26,7 +26,13 @@ For decoding:
 
 Settings:
 
-    Settings are configurable via the settings.rkt file in the src directory. See file for descriptions of the various
-    settings.
+    Settings are configurable via the settings.rkt file in the src directory. See file for descriptions of how to set each. 
+    Some settings include:
+
+    1. Whether to fail if the carrier cannot fit the payload or encode as much as possible
+    2. The trade off between noise, desity, and reliability
+
+    Empirical results show best results when used in conjunction with mid range (ex. except0.wav in the tst directory) 
+    or higher picted audio files. By default, settings are configured to this type of audio.
 
 For more information on how the system works, see the NOTES file.
