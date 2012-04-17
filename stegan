@@ -2,8 +2,9 @@
 
 # Syntax for executing racket from command line -> /proj/racket/bin/racket -f <file> -e <function>
 
-
-SETUP=""
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 if [ "$1" = "--encode" ] 
 then
@@ -11,7 +12,7 @@ then
   then
     echo -e "stegan encode requires 3 arguments\nstegan --encode <original wav filename> <filename of data to imprint> <output filename>"
   else
-    /proj/racket/bin/racket -f src/encoder.rkt -e "$SETUP(encode-payload-into-carrier \"$2\" \"$3\" \"$4\")"
+    /proj/racket/bin/racket -f $DIR/src/encoder.rkt -e "(encode-payload-into-carrier \"$2\" \"$3\" \"$4\")"
   fi
 elif [ "$1" = "--decode" ] 
 then
@@ -19,7 +20,7 @@ then
   then
     echo -e "stegan decode requires 2 arguments\nstegan --decode <filename of WAV file> <output filename>"
   else
-    /proj/racket/bin/racket -f src/decoder.rkt -e "$SETUP(decode-payload-from-carrier \"$2\" \"$3\")"
+    /proj/racket/bin/racket -f $DIR/src/decoder.rkt -e "(decode-payload-from-carrier \"$2\" \"$3\")"
   fi
 else
   echo -e "Usage: stegan --encode|decode <args>..."
